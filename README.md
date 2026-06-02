@@ -1,4 +1,4 @@
-# Gemini Travel Intelligence
+# Travel DNA
 
 A reusable Gemini Canvas/Gem starter package for creating personalized travel itineraries as beautiful interactive HTML visualizations.
 
