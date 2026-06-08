@@ -318,11 +318,10 @@ function App() {
               </div>
 
               <h1>
-                Plan anything built for <span>right now.</span>
+                Today feels <span>different.</span>
               </h1>
               <p>
-                A single evening. A full day. A whole trip. Every moment shaped
-                around who you want to be today — not just where you're going.
+                Your mood changes everything. We turn that missing signal into a personalized itinerary.
               </p>
 
               <div className="hero-cta">
