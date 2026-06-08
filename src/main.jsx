@@ -448,30 +448,24 @@ function App() {
             </p>
           </section>
 
-          <section className="mood-grid">
-            {moodVibes.map((vibe) => (
+          <section className="mood-grid image-mode">
+            {moodVibes.map((vibe, index) => (
               <button
                 type="button"
                 key={vibe.id}
-                className={selectedMoods.includes(vibe.id) ? "mood-tile active" : "mood-tile"}
+                className={selectedMoods.includes(vibe.id) ? `mood-tile image-tile tile-${index + 1} active` : `mood-tile image-tile tile-${index + 1}`}
                 onClick={() => toggleMood(vibe.id)}
               >
-                <span className="mood-icon">{vibe.icon}</span>
-                <strong>{vibe.title}</strong>
-                <p>{vibe.tag}</p>
+                <img src={vibe.img} alt={vibe.title} loading="lazy" />
+                <span className="image-sheen" />
                 <span className="mood-check">✓</span>
+                <span className="mood-number">{String(index + 1).padStart(2, "0")}</span>
+                <span className="mood-copy">
+                  <strong>{vibe.title}</strong>
+                  <p>{vibe.tag}</p>
+                </span>
               </button>
             ))}
-          </section>
-
-          <section className="mood-image-strip">
-            {selectedMoodObjects.length ? selectedMoodObjects.map((vibe) => (
-              <article className="mood-image-card" key={vibe.id}>
-                <img src={vibe.img} alt={vibe.title} />
-                <div />
-                <span>{vibe.title}</span>
-              </article>
-            )) : null}
           </section>
 
           <section className="bottom-cta glass-panel">
@@ -1829,6 +1823,207 @@ small {
 
   .s-photo {
     height: 210px;
+  }
+}
+
+
+/* Full-screen rounded image mood grid */
+.mood-screen {
+  max-width: none;
+  padding-left: clamp(18px, 3vw, 44px);
+  padding-right: clamp(18px, 3vw, 44px);
+}
+
+.mood-header {
+  max-width: 1080px;
+  margin: 0 auto 28px;
+}
+
+.mood-grid.image-mode {
+  width: min(1440px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: clamp(230px, 27vh, 330px);
+  gap: 18px;
+  padding: 0;
+}
+
+.image-tile {
+  min-height: 0;
+  height: 100%;
+  padding: 0;
+  border-radius: 34px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.13);
+  background: var(--s2);
+  position: relative;
+  display: block;
+  box-shadow: 0 18px 54px rgba(0,0,0,.26);
+}
+
+.image-tile:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255,255,255,.24);
+}
+
+.image-tile.active {
+  border-color: var(--blue);
+  outline: 3px solid rgba(66,133,244,.55);
+  outline-offset: -3px;
+  background: var(--s2);
+}
+
+.image-tile img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(.58) saturate(.9);
+  transition: transform .75s var(--ease), filter .35s ease;
+}
+
+.image-tile:hover img {
+  transform: scale(1.11);
+  filter: brightness(.76) saturate(1.12);
+}
+
+.image-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, rgba(0,0,0,.88), rgba(0,0,0,.30) 52%, rgba(0,0,0,.06)),
+    radial-gradient(circle at 80% 15%, rgba(66,133,244,.18), transparent 34%);
+  pointer-events: none;
+}
+
+.image-tile .image-sheen {
+  position: absolute;
+  inset: -60%;
+  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.18), transparent 62%);
+  transform: translateX(-50%);
+  opacity: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.image-tile:hover .image-sheen {
+  animation: imageSweep 1.4s ease-in-out infinite;
+  opacity: 1;
+}
+
+@keyframes imageSweep {
+  to { transform: translateX(55%); }
+}
+
+.mood-copy {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 22px;
+  z-index: 3;
+}
+
+.mood-copy strong {
+  display: block;
+  color: #fff;
+  font-size: clamp(24px, 2.2vw, 34px);
+  line-height: 1;
+  letter-spacing: -.035em;
+}
+
+.mood-copy p {
+  color: rgba(255,255,255,.72);
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.mood-number {
+  position: absolute;
+  left: 24px;
+  top: 22px;
+  z-index: 3;
+  color: rgba(255,255,255,.52);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+.image-tile .mood-check {
+  top: 18px;
+  right: 18px;
+  z-index: 4;
+  background: var(--accent);
+  color: #07110f;
+}
+
+.image-tile.active .mood-check {
+  display: grid;
+}
+
+.tile-1,
+.tile-8 {
+  grid-row: span 2;
+}
+
+.tile-9 {
+  grid-column: span 2;
+}
+
+.mood-image-strip {
+  display: none !important;
+}
+
+.bottom-cta {
+  width: min(1440px, 100%);
+  margin: 20px auto 0;
+  border-radius: 32px;
+}
+
+@media(max-width: 1180px) {
+  .mood-grid.image-mode {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-rows: 260px;
+  }
+
+  .tile-1,
+  .tile-8,
+  .tile-9 {
+    grid-row: span 1;
+    grid-column: span 1;
+  }
+}
+
+@media(max-width: 760px) {
+  .mood-grid.image-mode {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 230px;
+    gap: 14px;
+  }
+
+  .mood-copy {
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+  }
+
+  .mood-copy strong {
+    font-size: 22px;
+  }
+
+  .mood-number {
+    left: 18px;
+    top: 18px;
+  }
+}
+
+@media(max-width: 520px) {
+  .mood-grid.image-mode {
+    grid-template-columns: 1fr;
+    grid-auto-rows: 220px;
   }
 }
 `;
