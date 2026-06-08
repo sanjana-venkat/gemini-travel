@@ -1204,9 +1204,8 @@ input:focus {
 
 .mood-grid.image-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-auto-rows: clamp(220px, 24vw, 340px);
-  gap: 16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
   width: 100%;
 }
 
@@ -1219,18 +1218,10 @@ input:focus {
   text-align: left;
   background: var(--s2);
   color: white;
-  min-height: 220px;
+  height: 260px;
+  min-height: 260px;
   box-shadow: 0 20px 70px rgba(0,0,0,.22);
   transition: transform .28s var(--ease), border-color .2s, box-shadow .2s, opacity .2s;
-}
-
-.image-mood-tile:nth-child(1),
-.image-mood-tile:nth-child(8) {
-  grid-row: span 2;
-}
-
-.image-mood-tile:nth-child(9) {
-  grid-column: span 2;
 }
 
 .image-mood-tile:hover {
@@ -1739,10 +1730,6 @@ small {
   .mood-grid.image-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-
-  .image-mood-tile:nth-child(9) {
-    grid-column: span 1;
-  }
 }
 
 @media(max-width: 980px) {
@@ -1767,14 +1754,11 @@ small {
 @media(max-width: 720px) {
   .mood-grid.image-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-auto-rows: 230px;
   }
 
-  .image-mood-tile:nth-child(1),
-  .image-mood-tile:nth-child(8),
-  .image-mood-tile:nth-child(9) {
-    grid-row: span 1;
-    grid-column: span 1;
+  .image-mood-tile {
+    height: 230px;
+    min-height: 230px;
   }
 
   .bottom-cta {
@@ -1784,17 +1768,21 @@ small {
 }
 
 @media(max-width: 600px) {
-  .mood-grid.image-grid {
-    grid-template-columns: 1fr;
-    grid-auto-rows: 220px;
-  }
-
   .navbar {
     padding: 0 20px;
   }
 
   .screen {
     padding: 40px 20px;
+  }
+
+  .mood-grid.image-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .image-mood-tile {
+    height: 220px;
+    min-height: 220px;
   }
 
   .res-hero {
