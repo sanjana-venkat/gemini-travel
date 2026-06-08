@@ -321,7 +321,7 @@ function App() {
                 Today feels <span>different.</span>
               </h1>
               <p>
-                Your mood changes everything. We turn that missing signal into a personalized itinerary.
+                Your mood changes everything. We turn that missing signal into a personalized itinerary. Whether it's a single evening, a full day or even a whole trip.
               </p>
 
               <div className="hero-cta">
