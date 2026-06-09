@@ -4,6 +4,99 @@ import "./styles.css";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
+function getTravelArchetype(moods = []) {
+  const ids = moods.map((m) => m.id);
+  const titles = moods.map((m) => m.title);
+
+  const has = (value) => ids.includes(value) || titles.includes(value);
+
+  if (has("romantic") && has("active") && has("nature")) {
+    return {
+      name: "The Scenic Spark",
+      line: "Romantic energy, movement, and open-air moments."
+    };
+  }
+
+  if (has("romantic") && has("comfort")) {
+    return {
+      name: "The Soft Landing",
+      line: "A gentle, intimate plan with room to slow down."
+    };
+  }
+
+  if (has("culinary") && has("cultural")) {
+    return {
+      name: "The Local Romantic",
+      line: "Food, texture, and cultural depth over tourist checklists."
+    };
+  }
+
+  if (has("adventurous") && has("active")) {
+    return {
+      name: "The Momentum Seeker",
+      line: "Built for movement, discovery, and a little edge."
+    };
+  }
+
+  if (has("nature") && has("slow-easy")) {
+    return {
+      name: "The Quiet Wanderer",
+      line: "Spacious, scenic, and intentionally unhurried."
+    };
+  }
+
+  if (has("social") && has("culinary")) {
+    return {
+      name: "The Table Hopper",
+      line: "A social plan shaped around conversation, flavor, and local energy."
+    };
+  }
+
+  if (has("open")) {
+    return {
+      name: "The Open Compass",
+      line: "Flexible by design, with Gemini choosing the strongest route."
+    };
+  }
+
+  if (moods.length) {
+    return {
+      name: `The ${moods[0].title} Day`,
+      line: `A plan shaped around ${moods.map((m) => m.title.toLowerCase()).join(", ")}.`
+    };
+  }
+
+  return {
+    name: "The Mood-Led Day",
+    line: "A plan shaped around who you want to be today."
+  };
+}
+
+function buildGoogleMapsTripUrl(stops = []) {
+  const names = stops
+    .map((stop) => stop.googlePlaceName || stop.name || stop.photoQuery)
+    .filter(Boolean)
+    .slice(0, 10);
+
+  if (!names.length) return "";
+
+  if (names.length === 1) {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(names[0])}`;
+  }
+
+  const origin = names[0];
+  const destination = names[names.length - 1];
+  const waypoints = names.slice(1, -1).join("|");
+
+  let url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=walking`;
+
+  if (waypoints) {
+    url += `&waypoints=${encodeURIComponent(waypoints)}`;
+  }
+
+  return url;
+}
+
 function getToday() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -19,21 +112,15 @@ function prettyDate(value) {
   });
 }
 
-const destinationSuggestions = [
-  "Kyoto, Japan",
-  "Oaxaca, Mexico",
-  "Big Island, Hawaii",
-  "Kauai, Hawaii",
-  "San Francisco, CA",
-  "New York City",
-  "Paris, France",
-  "Amalfi Coast, Italy",
-  "Marrakech, Morocco",
-  "Patagonia, Argentina",
-  "Tokyo, Japan",
-  "Barcelona, Spain",
-  "Ubud, Bali",
-  "Mexico City, Mexico"
+const fallbackDestinationSuggestions = [
+  { label: "Kyoto, Japan", aliases: ["kyoto"] },
+  { label: "Oaxaca, Mexico", aliases: ["oaxaca"] },
+  { label: "Big Island, Hawaii", aliases: ["big island", "hawaii"] },
+  { label: "Kauai, Hawaii", aliases: ["kauai"] },
+  { label: "San Francisco, CA", aliases: ["san francisco", "sf", "frisco", "bay area"] },
+  { label: "New York City", aliases: ["new york", "nyc"] },
+  { label: "Paris, France", aliases: ["paris"] },
+  { label: "Tokyo, Japan", aliases: ["tokyo"] }
 ];
 
 const moodVibes = [
@@ -115,6 +202,8 @@ function App() {
   const [user, setUser] = useState(null);
   const [step, setStep] = useState("login");
   const [destination, setDestination] = useState("Kyoto, Japan");
+  const [placePredictions, setPlacePredictions] = useState([]);
+  const [isAutocompleting, setIsAutocompleting] = useState(false);
   const [date, setDate] = useState(getToday());
   const [diet, setDiet] = useState("Vegetarian");
   const [planFor, setPlanFor] = useState("Date");
@@ -196,9 +285,63 @@ function App() {
     };
   }, [step]);
 
+
+  useEffect(() => {
+    const query = destination.trim();
+
+    if (query.length < 2) {
+      setPlacePredictions([]);
+      return;
+    }
+
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      setIsAutocompleting(true);
+      try {
+        const response = await fetch(`/api/place-autocomplete?input=${encodeURIComponent(query)}`);
+        const data = await response.json();
+
+        if (!cancelled && Array.isArray(data.suggestions)) {
+          setPlacePredictions(data.suggestions);
+        }
+      } catch (error) {
+        console.warn("Autocomplete fallback:", error);
+        if (!cancelled) setPlacePredictions([]);
+      } finally {
+        if (!cancelled) setIsAutocompleting(false);
+      }
+    }, 220);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [destination]);
+
+  const fallbackFilteredDestinations = fallbackDestinationSuggestions.filter((item) => {
+    const query = destination.toLowerCase().trim();
+    return (
+      item.label.toLowerCase().includes(query) ||
+      item.aliases.some((alias) => alias.includes(query))
+    );
+  });
+
+  const destinationOptions = placePredictions.length
+    ? placePredictions
+    : fallbackFilteredDestinations.slice(0, 6).map((item) => ({
+        label: item.label,
+        source: "fallback"
+      }));
+
   const selectedMoodObjects = selectedMoods
     .map((id) => moodVibes.find((vibe) => vibe.id === id))
     .filter(Boolean);
+
+  const travelArchetype = getTravelArchetype(selectedMoodObjects);
+
+  const tripMapsUrl = itinerary?.stops?.length
+    ? buildGoogleMapsTripUrl(itinerary.stops)
+    : "";
 
   const loadingItems = useMemo(
     () => [
@@ -301,11 +444,11 @@ function App() {
           })}
         </div>
 
-        {step !== "login" && (
-          <button className="btn-outline" onClick={() => setStep("setup")}>
-            Start over
+        <div className="nav-actions">
+          <button className="btn-accent nav-subscribe" onClick={() => setShowSubscribe(true)}>
+            Subscribe for updates
           </button>
-        )}
+        </div>
       </nav>
 
       {step === "login" && (
@@ -318,10 +461,11 @@ function App() {
               </div>
 
               <h1>
-                Today feels <span>different.</span>
+                Plan anything built for <span>right now.</span>
               </h1>
               <p>
-                Your mood changes everything. We turn that missing signal into a personalized itinerary. Whether it's a single evening, a full day or even a whole trip.
+                A single evening. A full day. A whole trip. Every moment shaped
+                around who you want to be today — not just where you're going.
               </p>
 
               <div className="hero-cta">
@@ -372,29 +516,26 @@ function App() {
             <label>
               <span>Destination</span>
               <input
-                list="destinations"
                 value={destination}
                 onChange={(e) => setDestination(e.target.value)}
                 placeholder="City, neighborhood, or place"
+                autoComplete="off"
               />
-              <datalist id="destinations">
-                {destinationSuggestions.map((item) => (
-                  <option value={item} key={item} />
-                ))}
-              </datalist>
             </label>
 
-            <div className="suggestions">
-              {destinationSuggestions.slice(0, 6).map((item) => (
+            <div className="suggestions autocomplete-suggestions">
+              {destinationOptions.map((item) => (
                 <button
                   type="button"
-                  key={item}
-                  className={destination === item ? "suggestion active" : "suggestion"}
-                  onClick={() => setDestination(item)}
+                  key={item.placeId || item.label}
+                  className={destination === item.label ? "suggestion active" : "suggestion"}
+                  onClick={() => setDestination(item.label)}
                 >
-                  {item}
+                  {item.label}
+                  {item.source === "google" && <span>Maps</span>}
                 </button>
               ))}
+              {isAutocompleting && <div className="autocomplete-loading">Searching Google Maps…</div>}
             </div>
 
             <label>
@@ -572,7 +713,7 @@ function App() {
             <img src={itinerary?.heroImageUrl || selectedMoodObjects[0]?.img || moodVibes[0].img} alt="" />
             <div className="res-gradient" />
             <div className="res-content">
-              <span className="res-tag">Travel DNA</span>
+              <span className="res-tag">{travelArchetype.name}</span>
               <h2>{itinerary?.destination || destination}</h2>
               <p>{itinerary?.dates || prettyDate(date)}</p>
               <div className="res-dna-strip">
@@ -580,6 +721,7 @@ function App() {
                   <span key={mood.id}>Today: {mood.title}</span>
                 ))}
               </div>
+              <p className="archetype-line">{travelArchetype.line}</p>
               {itinerary?.summary && <p className="res-summary">{itinerary.summary}</p>}
               {itinerary?.generatedBy === "fallback" && (
                 <div className="fallback-banner">
@@ -606,9 +748,11 @@ function App() {
             <button className="btn-accent" onClick={generatePlan}>
               Regenerate ✦
             </button>
-            <button className="btn-outline" onClick={() => setShowSubscribe(true)}>
-              Subscribe for updates
-            </button>
+            {tripMapsUrl && (
+              <a className="btn-outline maps-trip-btn" href={tripMapsUrl} target="_blank" rel="noreferrer">
+                Open trip in Google Maps
+              </a>
+            )}
           </section>
 
           <section className="timeline">
@@ -631,11 +775,6 @@ function App() {
                       <span>{stop.openNow ? "Open now" : "Hours vary"}</span>
                     )}
                     {stop.address && <span>{stop.address}</span>}
-                    {stop.mapsUrl && (
-                      <a href={stop.mapsUrl} target="_blank" rel="noreferrer">
-                        Open in Google Maps
-                      </a>
-                    )}
                     {!stop.rating && stop.placesStatus !== "google-places" && (
                       <span className="demo-pill">Places details unavailable in fallback</span>
                     )}
@@ -650,7 +789,7 @@ function App() {
                       loading="lazy"
                     />
                     <div className="s-photo-ov" />
-                    <span>{stop.placesStatus === "google-places" ? "Google Places photo" : (stop.photoQuery || stop.name)}</span>
+                    <span>{stop.googlePlaceName || stop.address || stop.category || stop.name}</span>
                   </div>
 
                   <small>{stop.routeFromPrevious}</small>
@@ -2131,6 +2270,172 @@ small {
   color: var(--ink3);
   border-color: rgba(255,255,255,.08);
   background: rgba(255,255,255,.035);
+}
+
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-subscribe {
+  padding: 10px 18px;
+}
+
+.autocomplete-suggestions .suggestion {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.autocomplete-suggestions .suggestion span {
+  color: var(--accent);
+  background: var(--accent2);
+  border-radius: 999px;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.autocomplete-loading {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  color: var(--ink3);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.result-screen {
+  max-width: 1120px !important;
+  width: 100% !important;
+  padding: 48px 40px 80px !important;
+  margin: 0 auto;
+}
+
+.res-hero {
+  height: auto !important;
+  min-height: 420px;
+  border-radius: 36px;
+  border: 1px solid var(--bdr);
+  overflow: hidden;
+  background: var(--s2);
+}
+
+.res-content {
+  left: 0 !important;
+  transform: none !important;
+  width: 100% !important;
+  padding: 52px clamp(28px, 6vw, 76px) !important;
+}
+
+.action-bar {
+  position: static !important;
+  top: auto !important;
+  border: 1px solid var(--bdr);
+  border-radius: 999px;
+  margin: 22px 0 0;
+  padding: 12px !important;
+  width: fit-content;
+  background: rgba(19,25,32,.74);
+}
+
+.timeline {
+  max-width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+@media(max-width: 720px) {
+  .nav-actions {
+    gap: 6px;
+  }
+
+  .nav-subscribe {
+    display: none;
+  }
+
+  .result-screen {
+    padding: 28px 20px 70px !important;
+  }
+
+  .action-bar {
+    width: 100%;
+    justify-content: center;
+    border-radius: 28px;
+  }
+}
+
+
+/* Final navigation, archetype, and maps refinements */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-subscribe {
+  padding: 10px 18px;
+}
+
+.archetype-line {
+  margin: 14px 0 0;
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.maps-trip-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.s-photo span {
+  max-width: calc(100% - 34px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.autocomplete-suggestions .suggestion {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.autocomplete-suggestions .suggestion span {
+  color: var(--accent);
+  background: var(--accent2);
+  border-radius: 999px;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.autocomplete-loading {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  color: var(--ink3);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+@media(max-width: 720px) {
+  .nav-subscribe {
+    padding: 9px 13px;
+  }
+
+  .action-bar {
+    gap: 8px;
+  }
+
+  .maps-trip-btn {
+    width: 100%;
+  }
 }
 `;
 
