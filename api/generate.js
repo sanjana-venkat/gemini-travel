@@ -9,17 +9,13 @@ const FALLBACK_IMAGES = [
   "https://images.pexels.com/photos/1024960/pexels-photo-1024960.jpeg?auto=compress&cs=tinysrgb&w=1400",
   "https://images.pexels.com/photos/2347311/pexels-photo-2347311.jpeg?auto=compress&cs=tinysrgb&w=1400",
   "https://images.pexels.com/photos/2868242/pexels-photo-2868242.jpeg?auto=compress&cs=tinysrgb&w=1400",
-  "https://images.pexels.com/photos/378570/pexels-photo-378570.jpeg?auto=compress&cs=tinysrgb&w=1400",
   "https://images.pexels.com/photos/2070033/pexels-photo-2070033.jpeg?auto=compress&cs=tinysrgb&w=1400",
-  "https://images.pexels.com/photos/1839919/pexels-photo-1839919.jpeg?auto=compress&cs=tinysrgb&w=1400"
+  "https://images.pexels.com/photos/1839919/pexels-photo-1839919.jpeg?auto=compress&cs=tinysrgb&w=1400",
+  "https://images.pexels.com/photos/33109/fall-autumn-red-season.jpg?auto=compress&cs=tinysrgb&w=1400"
 ];
 
 function stripCodeFence(text = "") {
-  return text
-    .replace(/^```json\s*/i, "")
-    .replace(/^```\s*/i, "")
-    .replace(/```$/i, "")
-    .trim();
+  return text.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```$/i, "").trim();
 }
 
 function safeJsonParse(text) {
@@ -33,10 +29,6 @@ function safeJsonParse(text) {
   }
 }
 
-function normalizeKey(text = "") {
-  return text.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-}
-
 function uniqueFallbackImage(index, usedImages) {
   for (let offset = 0; offset < FALLBACK_IMAGES.length; offset += 1) {
     const candidate = FALLBACK_IMAGES[(index + offset) % FALLBACK_IMAGES.length];
@@ -45,8 +37,11 @@ function uniqueFallbackImage(index, usedImages) {
       return candidate;
     }
   }
-
   return FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
+}
+
+function getMoodText(selectedMoods = []) {
+  return selectedMoods.map((item) => `${item.title}: ${item.signal || item.tag || ""}`).join("; ");
 }
 
 function fallbackItinerary({ destination, dates, diet, travelWith, selectedMoods }) {
@@ -54,53 +49,20 @@ function fallbackItinerary({ destination, dates, diet, travelWith, selectedMoods
   const d = dates || "Today";
   const moods = (selectedMoods || []).map((m) => m.title).filter(Boolean);
   const moodLine = moods.length ? moods.join(" + ") : "Slow & easy";
+  const kyoto = dest.toLowerCase().includes("kyoto");
 
-  const baseStops = [
-    {
-      time: "8:30",
-      period: "AM",
-      category: "DAWN · RESET",
-      name: dest.toLowerCase().includes("kyoto") ? "Kyoto Gyoen National Garden" : `${dest} morning walk`,
-      description: `Start with a low-friction, mood-matched moment before the day gets crowded. This is designed around ${moodLine.toLowerCase()} energy.`,
-      photoQuery: dest.toLowerCase().includes("kyoto") ? "Kyoto Gyoen National Garden, Kyoto" : `${dest} scenic morning`,
-      routeFromPrevious: "Start of plan"
-    },
-    {
-      time: "10:30",
-      period: "AM",
-      category: "COMFORT · PAUSE",
-      name: dest.toLowerCase().includes("kyoto") ? "Cafe Bibliotic Hello!" : `Vegetarian-friendly café in ${dest}`,
-      description: `A relaxed café pause that respects ${diet || "your dietary preference"} and gives the day room to breathe.`,
-      photoQuery: dest.toLowerCase().includes("kyoto") ? "Cafe Bibliotic Hello Kyoto" : `${dest} vegetarian cafe`,
-      routeFromPrevious: "Easy walk or short taxi from the previous stop"
-    },
-    {
-      time: "1:00",
-      period: "PM",
-      category: "LOCAL · DISCOVERY",
-      name: dest.toLowerCase().includes("kyoto") ? "Nanzen-ji Temple" : `${dest} cultural neighborhood`,
-      description: "A textured local stop chosen to feel more personal than a generic top-10 itinerary.",
-      photoQuery: dest.toLowerCase().includes("kyoto") ? "Nanzen-ji Temple Kyoto" : `${dest} cultural neighborhood`,
-      routeFromPrevious: "Gentle route with room to wander"
-    },
-    {
-      time: "4:30",
-      period: "PM",
-      category: "GOLDEN HOUR · MOOD",
-      name: dest.toLowerCase().includes("kyoto") ? "Shogunzuka Seiryuden" : `${dest} sunset viewpoint`,
-      description: "A beautiful late-day moment for reflection, photos, and emotional payoff.",
-      photoQuery: dest.toLowerCase().includes("kyoto") ? "Shogunzuka Seiryuden Kyoto" : `${dest} sunset viewpoint`,
-      routeFromPrevious: "Short taxi or scenic transit"
-    },
-    {
-      time: "7:30",
-      period: "PM",
-      category: "DINNER · CLOSE",
-      name: dest.toLowerCase().includes("kyoto") ? "Ain Soph Journey Kyoto" : `${dest} dinner spot`,
-      description: `A dinner ending that keeps the day aligned with ${travelWith || "your group"} and ${diet || "your preferences"}.`,
-      photoQuery: dest.toLowerCase().includes("kyoto") ? "Ain Soph Journey Kyoto" : `${dest} dinner restaurant`,
-      routeFromPrevious: "Finish with an easy evening route"
-    }
+  const stops = kyoto ? [
+    ["8:30","AM","DAWN · RESET","Kyoto Gyoen National Garden","Kyoto Gyoen National Garden Kyoto","Start with a quiet, low-crowd walk that matches today's energy.","Start of plan"],
+    ["10:30","AM","COMFORT · PAUSE","Cafe Bibliotic Hello!","Cafe Bibliotic Hello Kyoto",`A relaxed café pause that works well for ${diet || "your food preferences"}.`,"Easy walk or short taxi from the garden"],
+    ["1:00","PM","LOCAL · CULTURE","Nanzen-ji Temple","Nanzen-ji Temple Kyoto","A textured cultural stop that feels calmer than a generic top-10 itinerary.","Gentle transit east toward Higashiyama"],
+    ["4:30","PM","GOLDEN HOUR · VIEW","Shogunzuka Seiryuden","Shogunzuka Seiryuden Kyoto","A late-day viewpoint for photos, conversation, and emotional payoff.","Short taxi or scenic transit"],
+    ["7:30","PM","DINNER · CLOSE","Ain Soph Journey Kyoto","Ain Soph Journey Kyoto",`A plant-forward dinner ending built around ${travelWith || "your group"} and ${diet || "your preferences"}.`,"Finish with an easy evening route"]
+  ] : [
+    ["9:00","AM","START · LOCAL",`${dest} historic center`,`${dest} historic center`,`Start with a low-friction local walk that reflects ${moodLine.toLowerCase()} energy.`,"Start of plan"],
+    ["11:00","AM","PAUSE · COMFORT",`${dest} vegetarian cafe`,`${dest} vegetarian cafe`,`A relaxed stop aligned to ${diet || "your food preferences"}.`,"Short walk or quick ride"],
+    ["1:30","PM","DISCOVERY · CULTURE",`${dest} cultural district`,`${dest} cultural district`,"A place to explore without making the day feel overplanned.","Easy transition from lunch"],
+    ["4:30","PM","MOOD · VIEW",`${dest} scenic viewpoint`,`${dest} scenic viewpoint`,"A late-day visual moment to make the plan memorable.","Short taxi or scenic route"],
+    ["7:00","PM","DINNER · CLOSE",`${dest} dinner restaurant`,`${dest} dinner restaurant`,`A closing meal chosen around ${travelWith || "your group"} and ${diet || "your preferences"}.`,"Simple evening route"]
   ];
 
   return {
@@ -108,16 +70,15 @@ function fallbackItinerary({ destination, dates, diet, travelWith, selectedMoods
     dates: d,
     selectedMood: moodLine,
     generatedBy: "fallback",
-    summary:
-      "This is a Travel DNA fallback preview generated because Gemini free-tier credits are limited. It still uses your setup and mood signals, and attempts to enrich places with Google Places where available.",
-    stops: baseStops
+    summary: "Gemini credits are limited, so Travel DNA generated a local fallback preview while still enriching places with Google Places.",
+    stops: stops.map(([time, period, category, name, photoQuery, description, routeFromPrevious]) => ({
+      time, period, category, name, photoQuery, description, routeFromPrevious
+    }))
   };
 }
 
 async function searchGooglePlace({ query, destination }) {
   if (!GOOGLE_MAPS_API_KEY) return null;
-
-  const textQuery = `${query} ${destination}`.trim();
 
   const response = await fetch("https://places.googleapis.com/v1/places:searchText", {
     method: "POST",
@@ -132,48 +93,47 @@ async function searchGooglePlace({ query, destination }) {
         "places.userRatingCount",
         "places.googleMapsUri",
         "places.currentOpeningHours.openNow",
-        "places.photos"
+        "places.photos",
+        "places.types",
+        "places.priceLevel"
       ].join(",")
     },
     body: JSON.stringify({
-      textQuery,
+      textQuery: `${query} ${destination || ""}`.trim(),
       maxResultCount: 1,
       languageCode: "en"
     })
   });
 
   const data = await response.json();
-
   if (!response.ok) {
-    console.error("Places API error:", data);
+    console.error("Places SearchText error:", data);
     return null;
   }
-
   return data?.places?.[0] || null;
 }
 
 function photoUrlFromPlace(place) {
   const photoName = place?.photos?.[0]?.name;
-  if (!photoName) return null;
-  return `/api/place-photo?name=${encodeURIComponent(photoName)}`;
+  return photoName ? `/api/place-photo?name=${encodeURIComponent(photoName)}` : null;
 }
 
-async function enrichStopWithPlaces(stop, destination, index = 0, usedImages = new Set()) {
-  const searchQuery = stop.photoQuery || stop.name;
-  const place = await searchGooglePlace({ query: searchQuery, destination });
+async function enrichStopWithPlaces(stop, destination, index, usedImages) {
+  const place = await searchGooglePlace({ query: stop.photoQuery || stop.name, destination });
 
   if (!place) {
-    console.warn("Places lookup returned no result:", { searchQuery, destination });
     return {
       ...stop,
       imageUrl: stop.imageUrl || uniqueFallbackImage(index, usedImages),
-      placesStatus: "fallback-image"
+      placesStatus: "fallback-image",
+      placeSource: "Fallback image"
     };
   }
 
+  const googlePhoto = photoUrlFromPlace(place);
+
   return {
     ...stop,
-    name: stop.name || place.displayName?.text,
     placeId: place.id,
     googlePlaceName: place.displayName?.text,
     address: place.formattedAddress,
@@ -181,58 +141,38 @@ async function enrichStopWithPlaces(stop, destination, index = 0, usedImages = n
     userRatingCount: place.userRatingCount,
     openNow: place.currentOpeningHours?.openNow,
     mapsUrl: place.googleMapsUri,
-    imageUrl: photoUrlFromPlace(place) || uniqueFallbackImage(index, usedImages),
-    placesStatus: photoUrlFromPlace(place) ? "google-places" : "fallback-image"
+    priceLevel: place.priceLevel,
+    placeTypes: place.types || [],
+    imageUrl: googlePhoto || uniqueFallbackImage(index, usedImages),
+    placesStatus: googlePhoto ? "google-places" : "fallback-image",
+    placeSource: googlePhoto ? "Google Places" : "Fallback image"
   };
 }
 
 async function enrichItinerary(itinerary, destination) {
   const stops = Array.isArray(itinerary.stops) ? itinerary.stops : [];
   const usedImages = new Set();
+
   itinerary.stops = await Promise.all(
     stops.map((stop, index) => enrichStopWithPlaces(stop, itinerary.destination || destination, index, usedImages))
   );
 
-  const firstGoogleImage = itinerary.stops.find((s) => s.placesStatus === "google-places")?.imageUrl;
-  itinerary.heroImageUrl = firstGoogleImage || itinerary.stops[0]?.imageUrl || FALLBACK_IMAGES[0];
+  itinerary.heroImageUrl =
+    itinerary.stops.find((s) => s.placesStatus === "google-places")?.imageUrl ||
+    itinerary.stops[0]?.imageUrl ||
+    FALLBACK_IMAGES[0];
+
+  itinerary.hasGooglePlacesData = itinerary.stops.some((s) => s.placeId);
+  itinerary.hasGooglePhotos = itinerary.stops.some((s) => s.placesStatus === "google-places");
 
   return itinerary;
 }
 
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Use POST." });
-  }
+async function generateWithGemini(payload) {
+  const { user, destination, dates, diet, travelWith, selectedMoods = [] } = payload;
+  const moodText = getMoodText(selectedMoods);
 
-  const {
-    user,
-    destination,
-    dates,
-    diet,
-    travelWith,
-    selectedMoods = []
-  } = req.body || {};
-
-  const fallback = () =>
-    enrichItinerary(
-      fallbackItinerary({ destination, dates, diet, travelWith, selectedMoods }),
-      destination
-    );
-
-  if (!GEMINI_API_KEY) {
-    const itinerary = await fallback();
-    return res.status(200).json({
-      ...itinerary,
-      fallbackReason: "Missing Gemini API key"
-    });
-  }
-
-  try {
-    const moodText = selectedMoods
-      .map((item) => `${item.title}: ${item.signal || item.tag}`)
-      .join("; ");
-
-    const prompt = `
+  const prompt = `
 You are Travel DNA, a mood-first planner powered by Gemini.
 
 Create a REAL, SPECIFIC itinerary for:
@@ -247,7 +187,6 @@ ${moodText || "No mood selected"}
 
 Rules:
 - Generate concrete places in or near the destination. No generic placeholders.
-- It should not feel like a generic tourist top-10.
 - Respect dietary preference.
 - Include 4 to 6 stops.
 - For restaurants, choose places likely compatible with the dietary preference.
@@ -272,56 +211,62 @@ JSON schema:
       "routeFromPrevious": "short route note"
     }
   ]
+}`;
+
+  const geminiRes = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.75, responseMimeType: "application/json" }
+      })
+    }
+  );
+
+  const raw = await geminiRes.json();
+  if (!geminiRes.ok) throw new Error(raw?.error?.message || "Gemini API request failed.");
+
+  const text = raw?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error("Gemini returned an empty response.");
+
+  return safeJsonParse(text);
 }
-`;
 
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.8,
-            responseMimeType: "application/json"
-          }
-        })
+export default async function handler(req, res) {
+  if (req.method !== "POST") return res.status(405).json({ error: "Use POST." });
+
+  const payload = req.body || {};
+  const { destination } = payload;
+
+  try {
+    let itinerary;
+
+    if (!GEMINI_API_KEY) {
+      itinerary = fallbackItinerary(payload);
+      itinerary.fallbackReason = "Missing GEMINI_API_KEY";
+    } else {
+      try {
+        itinerary = await generateWithGemini(payload);
+        itinerary.generatedBy = "gemini";
+      } catch (error) {
+        console.error("Gemini fallback:", error.message);
+        itinerary = fallbackItinerary(payload);
+        itinerary.fallbackReason = error.message;
       }
-    );
-
-    const raw = await geminiRes.json();
-
-    if (!geminiRes.ok) {
-      console.error("Gemini fallback:", raw);
-      const itinerary = await fallback();
-      return res.status(200).json({
-        ...itinerary,
-        fallbackReason: raw?.error?.message || "Gemini API request failed."
-      });
     }
 
-    const text = raw?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!text) {
-      const itinerary = await fallback();
-      return res.status(200).json({
-        ...itinerary,
-        fallbackReason: "Gemini returned an empty response."
-      });
-    }
-
-    const itinerary = safeJsonParse(text);
     const enriched = await enrichItinerary(itinerary, destination);
+    return res.status(200).json(enriched);
+  } catch (error) {
+    console.error("Generate route crashed:", error);
+
+    const fallback = fallbackItinerary(payload);
+    const enriched = await enrichItinerary(fallback, destination);
 
     return res.status(200).json({
       ...enriched,
-      generatedBy: "gemini"
-    });
-  } catch (error) {
-    console.error("Fallback after error:", error);
-    const itinerary = await fallback();
-    return res.status(200).json({
-      ...itinerary,
       fallbackReason: error.message || "Could not generate itinerary."
     });
   }
