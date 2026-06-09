@@ -457,7 +457,7 @@ function App() {
               </div>
 
               <h1>
-                Travel built around <span>who you are today.</span>
+                Today feels <span>different.</span>
               </h1>
               <p>
                 Personalization knows who you are. Mood reveals what matters right now.
@@ -477,13 +477,41 @@ function App() {
               </div>
             </div>
 
-            <div className="hero-cards">
-              {moodVibes.slice(6, 9).map((vibe, i) => (
-                <div className={`hcard hcard-${i + 1}`} key={vibe.id}>
-                  <img src={vibe.img} alt="" />
-                  <div>{vibe.title}</div>
+            <div className="hero-cards itinerary-showreel" aria-label="Itinerary preview animation">
+              <div className="showreel-frame">
+                <div className="showreel-image-stack">
+                  <img className="reel-img reel-img-1" src={moodVibes[8].img} alt="" />
+                  <img className="reel-img reel-img-2" src={moodVibes[2].img} alt="" />
+                  <img className="reel-img reel-img-3" src={moodVibes[3].img} alt="" />
                 </div>
-              ))}
+
+                <div className="showreel-overlay" />
+
+                <div className="showreel-copy">
+                  <span>Preview itinerary</span>
+                  <h3>Kyoto · mood-led day</h3>
+                </div>
+
+                <div className="itinerary-lines">
+                  <div className="itinerary-line line-1">
+                    <b>08:30</b>
+                    <span>Quiet temple morning</span>
+                  </div>
+                  <div className="itinerary-line line-2">
+                    <b>12:00</b>
+                    <span>Vegetarian lunch nearby</span>
+                  </div>
+                  <div className="itinerary-line line-3">
+                    <b>17:30</b>
+                    <span>Golden-hour walk</span>
+                  </div>
+                </div>
+
+                <div className="generation-chip">
+                  <i />
+                  <span>Generating plan</span>
+                </div>
+              </div>
             </div>
           </section>
         </main>
@@ -2190,6 +2218,225 @@ small {
     width: 100% !important;
   }
 }
+
+/* Premium teal secondary + hero showreel adjustments */
+:root {
+  --secondary: #35d4c8;
+  --secondary-soft: rgba(53, 212, 200, .14);
+  --secondary-line: rgba(53, 212, 200, .34);
+}
+
+.pulse {
+  background: var(--secondary) !important;
+}
+
+.hero-pill {
+  border-color: var(--secondary-line) !important;
+  background: var(--secondary-soft) !important;
+}
+
+.hero-pill span {
+  color: var(--secondary) !important;
+}
+
+h1 {
+  font-size: clamp(50px, 6.9vw, 92px) !important;
+  letter-spacing: -.06em !important;
+}
+
+h1 span {
+  color: var(--secondary) !important;
+}
+
+.hero-inner {
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 520px) !important;
+}
+
+.hero-cards.itinerary-showreel {
+  height: 520px !important;
+  display: grid !important;
+  place-items: center !important;
+}
+
+.showreel-frame {
+  position: relative;
+  width: min(520px, 100%);
+  height: 430px;
+  border-radius: 32px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.showreel-image-stack {
+  position: absolute;
+  inset: 0;
+}
+
+.reel-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.04);
+  animation: reelFade 9s infinite;
+}
+
+.reel-img-1 { animation-delay: 0s; }
+.reel-img-2 { animation-delay: 3s; }
+.reel-img-3 { animation-delay: 6s; }
+
+@keyframes reelFade {
+  0% { opacity: 0; transform: scale(1.04); }
+  8% { opacity: 1; transform: scale(1); }
+  30% { opacity: 1; transform: scale(1.025); }
+  38% { opacity: 0; transform: scale(1.05); }
+  100% { opacity: 0; transform: scale(1.05); }
+}
+
+.showreel-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.86)),
+    linear-gradient(90deg, rgba(0,0,0,.72), rgba(0,0,0,.12));
+}
+
+.showreel-copy {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  top: 24px;
+  z-index: 2;
+}
+
+.showreel-copy span {
+  display: inline-flex;
+  color: var(--secondary);
+  background: rgba(0,0,0,.38);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 999px;
+  padding: 7px 11px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.showreel-copy h3 {
+  margin: 14px 0 0;
+  max-width: 320px;
+  color: #fff;
+  font-size: 36px;
+  line-height: .98;
+  letter-spacing: -.05em;
+}
+
+.itinerary-lines {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 76px;
+  z-index: 2;
+  display: grid;
+  gap: 10px;
+}
+
+.itinerary-line {
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  gap: 12px;
+  align-items: center;
+  min-height: 46px;
+  padding: 11px 13px;
+  border-radius: 16px;
+  background: rgba(10,10,10,.58);
+  border: 1px solid rgba(255,255,255,.12);
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  transform: translateY(12px);
+  animation: lineBuild 9s infinite;
+}
+
+.line-1 { animation-delay: .55s; }
+.line-2 { animation-delay: 1.25s; }
+.line-3 { animation-delay: 1.95s; }
+
+@keyframes lineBuild {
+  0%, 4% { opacity: 0; transform: translateY(12px); }
+  10%, 74% { opacity: 1; transform: translateY(0); }
+  82%, 100% { opacity: 0; transform: translateY(-6px); }
+}
+
+.itinerary-line b {
+  color: var(--secondary);
+  font-size: 13px;
+}
+
+.itinerary-line span {
+  color: rgba(255,255,255,.86);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.generation-chip {
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  border-radius: 999px;
+  padding: 10px 13px;
+  background: var(--secondary-soft);
+  border: 1px solid var(--secondary-line);
+  color: var(--secondary);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.generation-chip i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--secondary);
+  animation: dotPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% { opacity: .35; transform: scale(.8); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+@media(max-width: 980px) {
+  .hero-cards.itinerary-showreel {
+    max-width: 560px;
+    height: auto !important;
+  }
+
+  .showreel-frame {
+    height: 380px;
+  }
+}
+
+@media(max-width: 620px) {
+  h1 {
+    font-size: 48px !important;
+  }
+
+  .showreel-frame {
+    height: 340px;
+    border-radius: 24px;
+  }
+
+  .showreel-copy h3 {
+    font-size: 30px;
+  }
+}
+
 `;
 
 createRoot(document.getElementById("root")).render(<App />);
