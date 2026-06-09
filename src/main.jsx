@@ -477,20 +477,45 @@ function App() {
               </div>
             </div>
 
-            <div className="hero-cards">
-              {moodVibes.slice(6, 9).map((vibe, i) => (
-                <div className={`hcard hcard-${i + 1}`} key={vibe.id}>
-                  <img src={vibe.img} alt="" />
-                  <div>{vibe.title}</div>
+            <div className="hero-cards itinerary-showreel" aria-label="Animated itinerary preview">
+              <div className="showreel-frame">
+                <div className="showreel-image-stack">
+                  <img className="reel-img reel-img-1" src={moodVibes[8].img} alt="" />
+                  <img className="reel-img reel-img-2" src={moodVibes[2].img} alt="" />
+                  <img className="reel-img reel-img-3" src={moodVibes[3].img} alt="" />
                 </div>
-              ))}
-              <div className="hero-stat hs1">
-                <b>DNA</b>
-                <span>data + mood</span>
-              </div>
-              <div className="hero-stat hs2">
-                <b className="gem">AI</b>
-                <span>real places</span>
+
+                <div className="showreel-overlay" />
+
+                <div className="showreel-copy">
+                  <span>Live preview</span>
+                  <h3>Kyoto · mood-led day</h3>
+                </div>
+
+                <div className="preview-progress">
+                  <i />
+                  <span>Personalizing around mood</span>
+                </div>
+
+                <div className="itinerary-lines">
+                  <div className="itinerary-line line-1">
+                    <b>08:30</b>
+                    <span>Quiet temple morning</span>
+                  </div>
+                  <div className="itinerary-line line-2">
+                    <b>12:00</b>
+                    <span>Vegetarian lunch nearby</span>
+                  </div>
+                  <div className="itinerary-line line-3">
+                    <b>17:30</b>
+                    <span>Golden-hour walk</span>
+                  </div>
+                </div>
+
+                <div className="generation-chip">
+                  <i />
+                  <span>Generating plan</span>
+                </div>
               </div>
             </div>
           </section>
@@ -646,8 +671,8 @@ function App() {
                 <line className="seg seg-1 blue-stroke" x1="72" y1="220" x2="135" y2="148" />
                 <line className="seg seg-2 green-stroke" x1="135" y1="148" x2="218" y2="186" />
                 <line className="seg seg-3 yellow-stroke" x1="218" y1="186" x2="306" y2="92" />
-                <line className="seg seg-4 red-stroke" x1="306" y1="92" x2="388" y2="136" />
-                <line className="seg seg-5 blue-stroke" x1="388" y1="136" x2="455" y2="96" />
+                <line className="seg seg-4 blue-stroke" x1="306" y1="92" x2="388" y2="136" />
+                <line className="seg seg-5 red-stroke" x1="388" y1="136" x2="455" y2="96" />
 
                 <circle className="node node-1 blue" cx="72" cy="220" r="9" />
                 <circle className="node node-2 green" cx="135" cy="148" r="9" />
@@ -737,9 +762,6 @@ function App() {
           <section className="action-bar">
             <button className="btn-outline" onClick={() => setStep("setup")}>
               Edit setup
-            </button>
-            <button className="btn-outline" onClick={() => setStep("mood")}>
-              Change mood
             </button>
             <button className="btn-accent" onClick={generatePlan}>
               Regenerate ✦
@@ -2847,6 +2869,515 @@ h1 span,
 
 .itinerary-line b {
   min-width: 58px;
+}
+
+
+/* HOME HERO SHOWREEL FIX — champagne gold, visible itinerary animation */
+:root {
+  --secondary: #BFA77A;
+  --secondary-soft: rgba(191,167,122,.12);
+  --secondary-line: rgba(191,167,122,.28);
+}
+
+.stars,
+.aurora {
+  display: none !important;
+}
+
+.pulse,
+.generation-chip i,
+.preview-progress i {
+  background: var(--secondary) !important;
+  box-shadow: none !important;
+}
+
+.hero-pill {
+  background: rgba(255,255,255,.035) !important;
+  border-color: rgba(255,255,255,.10) !important;
+}
+
+.hero-pill span {
+  color: rgba(255,255,255,.78) !important;
+}
+
+h1 {
+  font-size: clamp(50px, 6.9vw, 92px) !important;
+  letter-spacing: -.06em !important;
+}
+
+h1 span,
+.gem {
+  color: #fff !important;
+  background: none !important;
+  -webkit-text-fill-color: currentColor !important;
+  animation: none !important;
+}
+
+.hero-inner {
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 620px) !important;
+}
+
+.hero-cards.itinerary-showreel {
+  position: relative !important;
+  height: 620px !important;
+  display: grid !important;
+  place-items: center !important;
+  overflow: visible !important;
+}
+
+.showreel-frame {
+  position: relative !important;
+  width: min(620px, 100%) !important;
+  height: 520px !important;
+  border-radius: 34px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+  background: #111418 !important;
+  box-shadow: none !important;
+}
+
+.showreel-image-stack,
+.reel-img,
+.showreel-overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.reel-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.04);
+  animation: reelFade 9s infinite;
+}
+
+.reel-img-1 { animation-delay: 0s; }
+.reel-img-2 { animation-delay: 3s; }
+.reel-img-3 { animation-delay: 6s; }
+
+@keyframes reelFade {
+  0% { opacity: 0; transform: scale(1.04); }
+  8% { opacity: 1; transform: scale(1); }
+  33% { opacity: 1; transform: scale(1.035); }
+  42% { opacity: 0; transform: scale(1.06); }
+  100% { opacity: 0; transform: scale(1.06); }
+}
+
+.showreel-overlay {
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.88)),
+    linear-gradient(90deg, rgba(0,0,0,.76), rgba(0,0,0,.18)) !important;
+}
+
+.showreel-copy {
+  position: absolute !important;
+  left: 28px !important;
+  right: 28px !important;
+  top: 28px !important;
+  z-index: 3 !important;
+}
+
+.showreel-copy span {
+  display: inline-flex !important;
+  color: #F2E5C8 !important;
+  background: rgba(0,0,0,.44) !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+  border-radius: 999px !important;
+  padding: 8px 13px !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  letter-spacing: .11em !important;
+  text-transform: uppercase !important;
+}
+
+.showreel-copy h3 {
+  margin: 18px 0 0 !important;
+  max-width: 420px !important;
+  color: #fff !important;
+  font-size: clamp(44px, 4vw, 64px) !important;
+  line-height: .92 !important;
+  letter-spacing: -.06em !important;
+}
+
+.preview-progress {
+  position: absolute !important;
+  left: 28px !important;
+  right: 28px !important;
+  top: 218px !important;
+  z-index: 3 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  color: rgba(255,255,255,.76) !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  letter-spacing: .04em !important;
+}
+
+.preview-progress::after {
+  content: "";
+  flex: 1;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.14);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);
+}
+
+.preview-progress::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 27px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, #BFA77A, transparent);
+  transform: translateX(-100%);
+  animation: itineraryScan 3s ease-in-out infinite;
+}
+
+.preview-progress i {
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 999px !important;
+  flex: 0 0 auto !important;
+}
+
+@keyframes itineraryScan {
+  0% { transform: translateX(-100%); opacity: 0; }
+  20% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+.itinerary-lines {
+  position: absolute !important;
+  left: 28px !important;
+  right: 28px !important;
+  bottom: 86px !important;
+  z-index: 3 !important;
+  display: grid !important;
+  gap: 12px !important;
+}
+
+.itinerary-line {
+  display: grid !important;
+  grid-template-columns: 84px 1fr !important;
+  gap: 16px !important;
+  align-items: center !important;
+  min-height: 58px !important;
+  padding: 14px 18px !important;
+  border-radius: 20px !important;
+  background: rgba(12,13,15,.76) !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+  backdrop-filter: none !important;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: lineReveal 9s infinite;
+}
+
+.line-1 { animation-delay: .45s; }
+.line-2 { animation-delay: 1.35s; }
+.line-3 { animation-delay: 2.25s; }
+
+@keyframes lineReveal {
+  0%, 4% { opacity: 0; transform: translateY(12px); }
+  10%, 72% { opacity: 1; transform: translateY(0); }
+  82%, 100% { opacity: 0; transform: translateY(-7px); }
+}
+
+.itinerary-line b {
+  color: #F2E5C8 !important;
+  font-size: 16px !important;
+  font-weight: 900 !important;
+  letter-spacing: -.02em !important;
+}
+
+.itinerary-line span {
+  color: rgba(255,255,255,.92) !important;
+  font-size: clamp(16px, 1.6vw, 22px) !important;
+  font-weight: 900 !important;
+  letter-spacing: -.02em !important;
+}
+
+.generation-chip {
+  position: absolute !important;
+  left: 28px !important;
+  bottom: 28px !important;
+  z-index: 3 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  border-radius: 999px !important;
+  padding: 12px 16px !important;
+  background: rgba(191,167,122,.12) !important;
+  border: 1px solid rgba(191,167,122,.30) !important;
+  color: #F2E5C8 !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+}
+
+.generation-chip i {
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 50% !important;
+  animation: dotPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% { opacity: .4; transform: scale(.82); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+.btn-accent {
+  background: #BFA77A !important;
+  color: #0F1115 !important;
+  box-shadow: none !important;
+}
+
+.btn-accent:hover {
+  background: #CAB487 !important;
+  box-shadow: none !important;
+}
+
+.suggestion.active,
+.chip.active,
+.selected-chips span {
+  background: rgba(191,167,122,.14) !important;
+  border-color: rgba(191,167,122,.34) !important;
+  color: #F2E5C8 !important;
+}
+
+.image-mood-tile.active,
+.s-pin.featured {
+  border-color: #BFA77A !important;
+}
+
+.res-tag,
+.place-meta a {
+  color: #F2E5C8 !important;
+}
+
+@media(max-width: 980px) {
+  .hero-inner {
+    grid-template-columns: 1fr !important;
+  }
+
+  .hero-cards.itinerary-showreel {
+    height: auto !important;
+  }
+
+  .showreel-frame {
+    height: 470px !important;
+  }
+}
+
+@media(max-width: 620px) {
+  .showreel-frame {
+    height: 420px !important;
+    border-radius: 26px !important;
+  }
+
+  .showreel-copy h3 {
+    font-size: 38px !important;
+  }
+
+  .preview-progress {
+    top: 184px !important;
+  }
+
+  .itinerary-line {
+    grid-template-columns: 62px 1fr !important;
+  }
+
+  .itinerary-line span {
+    font-size: 15px !important;
+  }
+}
+
+
+/* Final polish: portfolio-style glass nav + result action cleanup */
+.navbar,
+.top-nav {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.045)) !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  border-radius: 999px !important;
+  width: min(1120px, calc(100% - 40px)) !important;
+  height: 58px !important;
+  margin: 18px auto 0 !important;
+  padding: 8px 12px !important;
+  position: sticky !important;
+  top: 18px !important;
+  backdrop-filter: blur(22px) saturate(145%) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(145%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.10),
+    0 18px 54px rgba(0,0,0,.22) !important;
+}
+
+.nav-steps button,
+.nav-tabs button {
+  border-radius: 999px !important;
+}
+
+.nav-steps button.active,
+.nav-tabs button.active {
+  background: rgba(255,255,255,.12) !important;
+  border-color: rgba(255,255,255,.14) !important;
+}
+
+.nav-actions {
+  gap: 8px !important;
+}
+
+.nav-subscribe,
+.nav-actions .btn-accent,
+.nav-actions .btn-primary {
+  background: rgba(191,167,122,.16) !important;
+  border: 1px solid rgba(191,167,122,.28) !important;
+  color: #F2E5C8 !important;
+  box-shadow: none !important;
+}
+
+/* Constellation: segment color follows the dot it starts from */
+.constellation .seg-1 { stroke: #4285F4 !important; }
+.constellation .seg-2 { stroke: #34A853 !important; }
+.constellation .seg-3 { stroke: #FBBC04 !important; }
+.constellation .seg-4 { stroke: #4285F4 !important; }
+.constellation .seg-5 { stroke: #EA4335 !important; }
+
+/* Result hero: container wraps to content instead of cropping huge text */
+.res-hero,
+.result-hero {
+  min-height: auto !important;
+  height: auto !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+  display: inline-block !important;
+}
+
+.result-screen {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+}
+
+.res-content,
+.result-copy {
+  width: fit-content !important;
+  max-width: min(900px, calc(100vw - 96px)) !important;
+  min-width: min(680px, calc(100vw - 96px)) !important;
+  padding: clamp(28px, 5vw, 64px) !important;
+}
+
+.res-content h2,
+.result-copy h2 {
+  font-size: clamp(44px, 5vw, 78px) !important;
+  line-height: .95 !important;
+  max-width: 820px !important;
+  overflow-wrap: anywhere !important;
+}
+
+.res-content p,
+.result-copy p,
+.res-summary {
+  max-width: 760px !important;
+}
+
+/* Remove wrapper feel around result buttons */
+.action-bar {
+  background: transparent !important;
+  border: 0 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 24px 0 52px !important;
+  width: auto !important;
+  border-radius: 0 !important;
+  display: flex !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+}
+
+/* Hide Change Mood no matter which class/name survived */
+.action-bar button:nth-child(2):has(+ button) {
+  /* backup only; explicit JS removal handles the actual button */
+}
+
+/* Result actions hierarchy:
+   Edit setup = quiet
+   Regenerate = secondary
+   Open trip in Google Maps = primary */
+.action-bar button,
+.action-bar a {
+  border-radius: 999px !important;
+  min-height: 48px !important;
+  padding: 0 22px !important;
+  font-weight: 800 !important;
+  box-shadow: none !important;
+}
+
+.action-bar button:first-child {
+  background: transparent !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+  color: rgba(255,255,255,.72) !important;
+}
+
+.action-bar button:not(:first-child):not(:last-child) {
+  background: rgba(255,255,255,.055) !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+  color: #F2E5C8 !important;
+}
+
+.action-bar button:last-child,
+.action-bar a:last-child {
+  background: #BFA77A !important;
+  border: 1px solid #BFA77A !important;
+  color: #0F1115 !important;
+}
+
+/* If Open Maps is not literally last, target by common text-compatible classes via fallback class styling */
+.action-bar .btn-accent,
+.action-bar .primary,
+.action-bar [href*="google"] {
+  background: #BFA77A !important;
+  border-color: #BFA77A !important;
+  color: #0F1115 !important;
+}
+
+.action-bar .btn-outline {
+  background: rgba(255,255,255,.055) !important;
+  border-color: rgba(255,255,255,.14) !important;
+  color: rgba(255,255,255,.74) !important;
+}
+
+@media(max-width: 760px) {
+  .navbar,
+  .top-nav {
+    width: calc(100% - 24px) !important;
+    margin-top: 12px !important;
+    top: 12px !important;
+  }
+
+  .res-content,
+  .result-copy {
+    min-width: 0 !important;
+    max-width: calc(100vw - 44px) !important;
+  }
+
+  .action-bar {
+    width: 100% !important;
+  }
+
+  .action-bar button,
+  .action-bar a {
+    width: 100% !important;
+    justify-content: center !important;
+  }
 }
 
 `;
