@@ -263,6 +263,7 @@ function App() {
                   <div className="itinerary-line line-2"><b>12:00</b><span>Vegetarian lunch nearby</span></div>
                   <div className="itinerary-line line-3"><b>17:30</b><span>Golden-hour walk</span></div>
                 </div>
+                <div className="generation-chip"><i /><span>Generating plan</span></div>
               </div>
             </div>
           </section>
@@ -544,24 +545,37 @@ button { cursor: pointer; }
 /* ── NAVBAR ── */
 .navbar {
   position: sticky; top: 0; z-index: 999;
-  width: 100%; height: 72px;
-  padding: 0 clamp(24px, 4vw, 56px);
+  width: 100%;
+  height: auto;
+  padding: 10px 24px;
   display: flex; align-items: center; justify-content: space-between;
-  border-bottom: 1px solid rgba(0,0,0,.08);
-  background: rgba(236,234,227,.88);
-  backdrop-filter: blur(22px) saturate(140%);
-  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+.navbar::before {
+  content: "";
+  position: absolute;
+  inset: 8px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.6);
+  background: rgba(238,236,230,.68);
+  backdrop-filter: blur(28px) saturate(180%) brightness(1.03);
+  -webkit-backdrop-filter: blur(28px) saturate(180%) brightness(1.03);
+  box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 4px 20px rgba(0,0,0,.05);
+  z-index: -1;
 }
 .nav-steps, .nav-actions, .error-actions { display: flex; align-items: center; gap: 6px; }
-.nav-steps { gap: 32px; }
+.nav-steps { gap: 28px; }
 .nav-steps i { display: none; }
 .nav-steps button {
   padding: 0; border: 0; border-radius: 0; background: transparent;
-  font-size: 15px; font-weight: 700; color: rgba(0,0,0,.48);
+  font-size: 14px; font-weight: 400; color: rgba(0,0,0,.42);
+  letter-spacing: -.01em;
   transition: color .15s;
 }
-.nav-steps button:hover:not(:disabled), .nav-steps button.active { background: transparent; color: var(--ink); }
-.nav-steps button.done { color: rgba(0,0,0,.58); }
+.nav-steps button:hover:not(:disabled), .nav-steps button.active { background: transparent; color: var(--ink); font-weight: 500; }
+.nav-steps button.done { color: rgba(0,0,0,.52); }
 .nav-steps button:disabled { opacity: .3; cursor: not-allowed; }
 
 /* ── BUTTONS ── */
