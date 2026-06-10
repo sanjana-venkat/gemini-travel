@@ -263,7 +263,7 @@ function App() {
                   <div className="itinerary-line line-2"><b>12:00</b><span>Vegetarian lunch nearby</span></div>
                   <div className="itinerary-line line-3"><b>17:30</b><span>Golden-hour walk</span></div>
                 </div>
-              
+
               </div>
             </div>
           </section>
@@ -545,29 +545,37 @@ button { cursor: pointer; }
 /* ── NAVBAR ── */
 .navbar {
   position: sticky; top: 0; z-index: 999;
-  width: 100%;
-  height: 64px;
+  width: 100%; height: 60px;
   padding: 0 clamp(24px, 4vw, 56px);
   display: flex; align-items: center; justify-content: space-between;
-  border: none;
-  border-bottom: 1px solid rgba(255,255,255,.5);
-  background: rgba(238,236,230,.72);
-  backdrop-filter: blur(28px) saturate(180%) brightness(1.03);
-  -webkit-backdrop-filter: blur(28px) saturate(180%) brightness(1.03);
-  box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 1px 12px rgba(0,0,0,.04);
+  background: var(--bg);
 }
 .navbar::before { display: none; }
 .nav-steps, .nav-actions, .error-actions { display: flex; align-items: center; gap: 6px; }
-.nav-steps { gap: 28px; }
+
+/* Step dots — compact pill-style progress */
+.nav-steps { display: flex; align-items: center; gap: 6px; }
 .nav-steps i { display: none; }
 .nav-steps button {
-  padding: 0; border: 0; border-radius: 0; background: transparent;
-  font-size: 14px; font-weight: 400; color: rgba(0,0,0,.42);
-  letter-spacing: -.01em;
-  transition: color .15s;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 12px; border: none;
+  border-radius: 999px; background: transparent;
+  font-size: 13px; font-weight: 500; color: var(--ink-3);
+  letter-spacing: -.01em; transition: background .15s, color .15s;
 }
-.nav-steps button:hover:not(:disabled), .nav-steps button.active { background: transparent; color: var(--ink); font-weight: 500; }
-.nav-steps button.done { color: rgba(0,0,0,.52); }
+.nav-steps button::before {
+  content: "";
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--line-strong); flex-shrink: 0;
+  transition: background .2s;
+}
+.nav-steps button:hover:not(:disabled) { background: var(--surface-2); color: var(--ink-2); }
+.nav-steps button.active {
+  background: var(--ink); color: #fff;
+}
+.nav-steps button.active::before { background: var(--accent); }
+.nav-steps button.done { color: var(--ink-2); }
+.nav-steps button.done::before { background: var(--ink); }
 .nav-steps button:disabled { opacity: .3; cursor: not-allowed; }
 
 /* ── BUTTONS ── */
@@ -605,9 +613,9 @@ p { font-size: 16px; line-height: 1.72; color: var(--ink-2); }
 .hero-screen { padding-top: clamp(64px,8vw,110px); }
 .hero-inner { display: grid; grid-template-columns: minmax(0,1.05fr) minmax(360px,520px); gap: clamp(42px,7vw,96px); align-items: center; min-height: 68vh; }
 .hero-left { display: flex; flex-direction: column; gap: 28px; }
-.hero-pill { display: inline-flex; align-items: center; gap: 8px; width: fit-content; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--surface); padding: 7px 12px; }
-.pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
-.hero-pill span { font-size: 11px; font-weight: 800; color: var(--ink-3); letter-spacing: .05em; text-transform: uppercase; }
+.hero-pill { display: inline-flex; align-items: center; gap: 0; background: none; border: none; padding: 0; }
+.pulse { display: none; }
+.hero-pill span { font-size: 13px; font-weight: 400; color: var(--ink-3); letter-spacing: 0; text-transform: none; font-style: italic; }
 .hero-left > p { max-width: 620px; font-size: clamp(17px,1.35vw,20px); line-height: 1.6; color: var(--ink-2); }
 .hero-cta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .google-wrap { min-height: 44px; display: inline-flex; align-items: center; border-radius: 999px; overflow: hidden; background: transparent; border: none; }
@@ -626,9 +634,7 @@ p { font-size: 16px; line-height: 1.72; color: var(--ink-2); }
 @keyframes reelFade { 0% { opacity:0; transform:scale(1.04); } 8% { opacity:1; transform:scale(1); } 30% { opacity:1; transform:scale(1.025); } 38% { opacity:0; transform:scale(1.05); } 100% { opacity:0; transform:scale(1.05); } }
 .showreel-overlay { position: absolute; inset: 0; background: linear-gradient(180deg,rgba(0,0,0,.02),rgba(0,0,0,.30)),linear-gradient(90deg,rgba(0,0,0,.18),rgba(0,0,0,.02)); }
 .showreel-copy { display: none !important; }
-.generation-chip { position: absolute; left: 22px; bottom: 22px; z-index: 2; display: inline-flex; align-items: center; gap: 8px; border-radius: 10px; padding: 9px 12px; background: var(--accent); color: var(--ink); font-size: 11px; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; }
-.generation-chip i { width: 6px; height: 6px; border-radius: 50%; background: var(--ink); animation: dotPulse 1.2s ease-in-out infinite; }
-@keyframes dotPulse { 0%,100% { opacity:.35; transform:scale(.8); } 50% { opacity:1; transform:scale(1.15); } }
+.generation-chip { display: none !important; }
 .itinerary-lines { position: absolute; left: 24px; right: 24px; bottom: 24px; z-index: 2; display: grid; gap: 8px; }
 .itinerary-line { display: grid; grid-template-columns: 72px 1fr; gap: 12px; align-items: center; min-height: 54px; padding: 10px 13px; border-radius: 18px; background: rgba(244,243,238,.92); border: 1px solid rgba(255,255,255,.62); opacity: 0; transform: translateY(12px); animation: lineBuild 9s infinite; }
 .line-1 { animation-delay:.55s; } .line-2 { animation-delay:1.25s; } .line-3 { animation-delay:1.95s; }
@@ -777,44 +783,35 @@ input[type="date"] { color-scheme: light; }
 
 /* ── TIMELINE ── */
 .timeline { max-width: 100% !important; margin: 0 auto; padding: 48px 0 90px !important; }
+.timeline > .label { display: flex; align-items: center; gap: 16px; margin-bottom: 40px; }
+.timeline > .label::after { content: ""; flex: 1; height: 1px; background: var(--line-strong); }
 .stop { display: flex; position: relative; margin-bottom: 44px; }
-.stop:not(:last-child)::after { content: ""; position: absolute; left: 20px; top: 44px; bottom: -44px; width: 1px; background: rgba(0,0,0,.12); }
+.stop:not(:last-child)::after { content: ""; position: absolute; left: 4px; top: 22px; bottom: -44px; width: 1px; background: var(--line-strong); }
 
-/* ── STOP PIN — clean numbered circle ── */
+/* ── STOP PIN — minimal dot ── */
 .s-pin {
-  width: 42px;
-  height: 42px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: var(--surface-2);
-  border: 1px solid var(--line-strong);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: var(--surface-3);
+  border: 2px solid var(--line-strong);
   flex-shrink: 0;
-  margin-right: 22px;
-  margin-top: 2px;
+  margin-right: 28px;
+  margin-top: 10px;
 }
 .s-pin-featured {
   background: var(--gold) !important;
   border-color: var(--gold) !important;
 }
-.s-pin-index {
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--ink-3);
-  letter-spacing: .04em;
-}
-.s-pin-featured .s-pin-index {
-  color: var(--ink);
-}
+.s-pin-index { display: none; }
 
 .s-body { flex: 1; min-width: 0; display: grid; grid-template-columns: minmax(0,1fr) minmax(300px,440px); column-gap: 40px; align-items: start; }
 .s-body > .s-cat, .s-body > h3, .s-body > h4, .s-body > p, .s-body > small, .s-body > .place-meta { grid-column: 1; }
 .s-body > .s-photo { grid-column: 2; grid-row: 1 / span 7; }
 .s-cat { font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 5px; }
-.s-body h3 { font-size: 30px; font-weight: 900; letter-spacing: -.045em; color: var(--ink); margin: 0 0 4px; }
+.s-body h3 { font-size: 13px; font-weight: 500; letter-spacing: .04em; color: var(--ink-3); margin: 0 0 6px; text-transform: uppercase; }
 .s-body h3 span { font-size: 12px; font-weight: 600; color: var(--ink-3); margin-left: 4px; }
-.s-body h4 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 8px; letter-spacing: -.02em; }
+.s-body h4 { font-size: 22px; font-weight: 800; color: var(--ink); margin: 0 0 10px; letter-spacing: -.03em; }
 .s-body p { font-size: 14px; line-height: 1.68; color: var(--ink-2); margin-bottom: 14px; }
 .s-body small { display: block; color: var(--ink-3); font-size: 12px; line-height: 1.5; }
 
