@@ -6,17 +6,29 @@ const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 function getTravelArchetype(moods = []) {
   const ids = moods.map((m) => m.id);
-  const titles = moods.map((m) => m.title);
-  const has = (value) => ids.includes(value) || titles.includes(value);
-  if (has("romantic") && has("active") && has("nature")) return { name: "The Scenic Spark", line: "Romantic energy, movement, and open-air moments." };
-  if (has("romantic") && has("comfort")) return { name: "The Soft Landing", line: "A gentle, intimate plan with room to slow down." };
-  if (has("culinary") && has("cultural")) return { name: "The Local Romantic", line: "Food, texture, and cultural depth over tourist checklists." };
-  if (has("adventurous") && has("active")) return { name: "The Momentum Seeker", line: "Built for movement, discovery, and a little edge." };
-  if (has("nature") && has("slow-easy")) return { name: "The Quiet Wanderer", line: "Spacious, scenic, and intentionally unhurried." };
-  if (has("social") && has("culinary")) return { name: "The Table Hopper", line: "A social plan shaped around conversation, flavor, and local energy." };
-  if (has("open")) return { name: "The Open Compass", line: "Flexible by design, with Gemini choosing the strongest route." };
-  if (moods.length) return { name: `The ${moods[0].title} Day`, line: `A plan shaped around ${moods.map((m) => m.title.toLowerCase()).join(", ")}.` };
-  return { name: "The Mood-Led Day", line: "A plan shaped around who you want to be today." };
+  const has = (value) => ids.includes(value);
+  if (has("romantic") && has("active") && has("nature")) return { name: "The Scenic Spark", line: "You move through places like someone who notices everything — the light, the pace, the person beside you." };
+  if (has("romantic") && has("slow-easy")) return { name: "The Soft Landing", line: "You travel to feel, not to collect. Unhurried, intentional, and present in every moment." };
+  if (has("romantic") && has("cultural")) return { name: "The Intimate Explorer", line: "You want beauty with substance — places that mean something, shared with someone who matters." };
+  if (has("culinary") && has("cultural")) return { name: "The Local Romantic", line: "You find culture through flavor. Markets, kitchens, and hole-in-the-wall restaurants are your galleries." };
+  if (has("culinary") && has("social")) return { name: "The Table Hopper", line: "For you, the best conversations happen over food. You eat where the locals eat and stay twice as long." };
+  if (has("adventurous") && has("active")) return { name: "The Momentum Seeker", line: "You don't sit still. You're drawn to edges, ascents, and the quiet satisfaction of having pushed yourself." };
+  if (has("adventurous") && has("nature")) return { name: "The Raw Wanderer", line: "Crowds bore you. You're after the kind of beauty that takes effort to reach — and silence when you get there." };
+  if (has("nature") && has("slow-easy")) return { name: "The Quiet Wanderer", line: "You travel to exhale. Open skies, slow mornings, and nothing on a schedule you didn't write yourself." };
+  if (has("social") && has("active")) return { name: "The Energy Chaser", line: "You move fast and meet people doing the same. Cities feel alive to you — and you want to be in the middle of it." };
+  if (has("cultural") && has("slow-easy")) return { name: "The Considered Traveler", line: "You'd rather understand one place deeply than skim ten. Depth over distance, always." };
+  if (has("open") && has("adventurous")) return { name: "The Unscripted", line: "Plans are a starting point for you — not a constraint. You follow what feels right and rarely regret it." };
+  if (has("open")) return { name: "The Open Compass", line: "You show up curious and let the place decide. The best trips you've taken were never fully planned." };
+  if (has("romantic")) return { name: "The Slow Romantic", line: "You travel to feel something. Golden hour, good wine, and nowhere to be — that's the whole point." };
+  if (has("adventurous")) return { name: "The Edge Seeker", line: "You measure a trip by what made your heart rate spike. Comfort is a baseline, not the goal." };
+  if (has("culinary")) return { name: "The Flavor Pilgrim", line: "You plan trips around meals and discover everything else along the way. Eating well is non-negotiable." };
+  if (has("social")) return { name: "The Connector", line: "You leave places with new numbers in your phone. Energy, people, and a full table — that's your version of a great trip." };
+  if (has("nature")) return { name: "The Landscape Chaser", line: "You're drawn to places that make you feel small in the best way. Wild, open, and far from anything ordinary." };
+  if (has("cultural")) return { name: "The Context Seeker", line: "You want the story behind the place. History, art, architecture — you travel to understand, not just to see." };
+  if (has("active")) return { name: "The Kinetic Traveler", line: "You see a city best from a run or a bike. Movement is how you think, explore, and decompress." };
+  if (has("slow-easy")) return { name: "The Unhurried", line: "You know that the best travel memories are almost never the rushed ones. You give places the time they deserve." };
+  if (moods.length) return { name: "The Mood-Led Traveler", line: "You know what you want today — and you're building a day around exactly that feeling." };
+  return { name: "The Mood-Led Traveler", line: "You know what you want today — and you're building a day around exactly that feeling." };
 }
 
 function buildGoogleMapsTripUrl(stops = []) {
@@ -263,7 +275,7 @@ function App() {
                   <div className="itinerary-line line-2"><b>12:00</b><span>Vegetarian lunch nearby</span></div>
                   <div className="itinerary-line line-3"><b>17:30</b><span>Golden-hour walk</span></div>
                 </div>
-                <div className="generation-chip"><i /><span>Generating plan</span></div>
+
               </div>
             </div>
           </section>
@@ -316,7 +328,7 @@ function App() {
         <main className="screen mood-screen on">
           <section className="mood-header">
             <p className="label">Step 2 / 2 · Choose up to 3</p>
-            <h2>What's your <span className="gem">mood today?</span></h2>
+            <h2>What's your <span className="gem">vibe?</span></h2>
             <p>This one input reshapes your entire day. It's the variable Gemini can't infer from data alone.</p>
           </section>
           <section className="mood-grid image-grid">
@@ -340,31 +352,74 @@ function App() {
 
       {step === "loading" && (
         <main className="loading-screen on">
+          <div className="loader-stage">
 
-          {/* Scrolling image strip */}
-          <div className="carousel-wrap" aria-hidden="true">
-            <div className="carousel-track">
-              {[...selectedMoodObjects.concat(moodVibes).slice(0, 7),
-                ...selectedMoodObjects.concat(moodVibes).slice(0, 7)].map((mood, i) => (
-                <div className="cimg" key={mood.id + i}>
+            {/* Stage 1: Cards shuffle in */}
+            <div className="ls ls-1">
+              {selectedMoodObjects.concat(moodVibes).slice(0, 3).map((mood, i) => (
+                <div className={`lcard lcard-${i}`} key={mood.id}>
                   <img src={mood.img} alt="" />
-                  <span className="cimg-lbl">{mood.title}</span>
+                  <div className="lcard-ov" />
+                  <span className="lcard-lbl">{mood.title}</span>
                 </div>
               ))}
+              <div className="lspills">
+                {[destination, ...selectedMoodObjects.map(m => m.title), diet, planFor].filter(Boolean).map((label, i) => (
+                  <span className={`lspill lspill-${i}`} key={label}>{label}</span>
+                ))}
+              </div>
             </div>
+
+            {/* Stage 2: Code being written */}
+            <div className="ls ls-2">
+              <div className="code-window">
+                <div className="code-topbar"><span/><span/><span/></div>
+                <div className="code-body">
+                  <div className="code-line cl-1"><em>const</em> dna <em>=</em> buildTravelDNA&#40;&#123;</div>
+                  <div className="code-line cl-2">{"  "}mood: [<em>"{selectedMoodObjects[0]?.title || 'adventurous'}"</em>],</div>
+                  <div className="code-line cl-3">{"  "}destination: <em>"{destination}"</em>,</div>
+                  <div className="code-line cl-4">{"  "}diet: <em>"{diet}"</em>, with: <em>"{planFor}"</em></div>
+                  <div className="code-line cl-5">&#125;&#41;&#59;</div>
+                  <div className="code-line cl-6"><em>await</em> gemini.generate&#40;dna&#41;&#59;</div>
+                  <div className="code-cursor"/>
+                </div>
+              </div>
+            </div>
+
+            {/* Stage 3: Wireframe itinerary */}
+            <div className="ls ls-3">
+              <div className="wire-frame">
+                <div className="wire-hero"/>
+                <div className="wire-meta"><div className="wire-tag"/><div className="wire-title"/><div className="wire-sub"/></div>
+                <div className="wire-stops">
+                  {[0,1,2].map(i => (
+                    <div className="wire-stop" key={i}>
+                      <div className="wire-dot"/>
+                      <div className="wire-lines"><div className="wire-line wl-a"/><div className="wire-line wl-b"/></div>
+                      <div className="wire-img"/>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Stage 4: Gemini finalising */}
+            <div className="ls ls-4">
+              <div className="gemini-orb">
+                <div className="gorb-ring r1"/><div className="gorb-ring r2"/><div className="gorb-ring r3"/>
+                <div className="gorb-core"><span className="gem">✦</span></div>
+              </div>
+              <p className="gemini-label">Gemini is finalising your plan</p>
+            </div>
+
           </div>
 
-          {/* Centre column */}
-          <div className="loader-centre">
+          {/* Bottom: headline + list always visible */}
+          <div className="loader-bottom">
             <div className="loader-head">
-              <h2 className="loader-headline">
-                Decoding your<br /><span className="gem">Travel DNA</span>
-              </h2>
-              <p className="loader-sub">
-                {destination} · {selectedMoodObjects.map(m => m.title).join(", ")}
-              </p>
+              <h2 className="loader-headline">Decoding your<br/><span className="gem">Travel DNA</span></h2>
+              <p className="loader-sub">{destination} · {selectedMoodObjects.map(m => m.title).join(", ")}</p>
             </div>
-
             <div className="loader-list">
               {loadingItems.map((item, i) => (
                 <div key={item} className={`loader-item${i < loadingLine ? " li-done" : ""}${i === loadingLine ? " li-active" : ""}`}>
@@ -374,7 +429,6 @@ function App() {
                 </div>
               ))}
             </div>
-
             <div className="loader-bar-track">
               <div className="loader-bar-fill" style={{ width: `${Math.round(((loadingLine + 1) / loadingItems.length) * 100)}%` }} />
             </div>
@@ -545,37 +599,37 @@ button { cursor: pointer; }
 /* ── NAVBAR ── */
 .navbar {
   position: sticky; top: 0; z-index: 999;
-  width: 100%;
-  height: auto;
-  padding: 10px 24px;
+  width: 100%; height: 60px;
+  padding: 0 clamp(24px, 4vw, 56px);
   display: flex; align-items: center; justify-content: space-between;
-  background: transparent;
-  border: none;
-  box-shadow: none;
+  background: var(--bg);
 }
-.navbar::before {
-  content: "";
-  position: absolute;
-  inset: 8px 16px;
-  border-radius: 18px;
-  border: 1px solid rgba(255,255,255,.6);
-  background: rgba(238,236,230,.68);
-  backdrop-filter: blur(28px) saturate(180%) brightness(1.03);
-  -webkit-backdrop-filter: blur(28px) saturate(180%) brightness(1.03);
-  box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 4px 20px rgba(0,0,0,.05);
-  z-index: -1;
-}
+.navbar::before { display: none; }
 .nav-steps, .nav-actions, .error-actions { display: flex; align-items: center; gap: 6px; }
-.nav-steps { gap: 28px; }
+
+/* Step dots — compact pill-style progress */
+.nav-steps { display: flex; align-items: center; gap: 6px; }
 .nav-steps i { display: none; }
 .nav-steps button {
-  padding: 0; border: 0; border-radius: 0; background: transparent;
-  font-size: 14px; font-weight: 400; color: rgba(0,0,0,.42);
-  letter-spacing: -.01em;
-  transition: color .15s;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 12px; border: none;
+  border-radius: 999px; background: transparent;
+  font-size: 13px; font-weight: 500; color: var(--ink-3);
+  letter-spacing: -.01em; transition: background .15s, color .15s;
 }
-.nav-steps button:hover:not(:disabled), .nav-steps button.active { background: transparent; color: var(--ink); font-weight: 500; }
-.nav-steps button.done { color: rgba(0,0,0,.52); }
+.nav-steps button::before {
+  content: "";
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--line-strong); flex-shrink: 0;
+  transition: background .2s;
+}
+.nav-steps button:hover:not(:disabled) { background: var(--surface-2); color: var(--ink-2); }
+.nav-steps button.active {
+  background: transparent; color: var(--accent);
+}
+.nav-steps button.active::before { background: var(--accent); }
+.nav-steps button.done { color: var(--ink-2); }
+.nav-steps button.done::before { background: var(--ink); }
 .nav-steps button:disabled { opacity: .3; cursor: not-allowed; }
 
 /* ── BUTTONS ── */
@@ -613,9 +667,9 @@ p { font-size: 16px; line-height: 1.72; color: var(--ink-2); }
 .hero-screen { padding-top: clamp(64px,8vw,110px); }
 .hero-inner { display: grid; grid-template-columns: minmax(0,1.05fr) minmax(360px,520px); gap: clamp(42px,7vw,96px); align-items: center; min-height: 68vh; }
 .hero-left { display: flex; flex-direction: column; gap: 28px; }
-.hero-pill { display: inline-flex; align-items: center; gap: 8px; width: fit-content; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--surface); padding: 7px 12px; }
-.pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
-.hero-pill span { font-size: 11px; font-weight: 800; color: var(--ink-3); letter-spacing: .05em; text-transform: uppercase; }
+.hero-pill { display: inline-flex; align-items: center; gap: 0; background: none; border: none; padding: 0; }
+.pulse { display: none; }
+.hero-pill span { font-size: 13px; font-weight: 400; color: var(--ink-3); letter-spacing: 0; text-transform: none; }
 .hero-left > p { max-width: 620px; font-size: clamp(17px,1.35vw,20px); line-height: 1.6; color: var(--ink-2); }
 .hero-cta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .google-wrap { min-height: 44px; display: inline-flex; align-items: center; border-radius: 999px; overflow: hidden; background: transparent; border: none; }
@@ -634,9 +688,7 @@ p { font-size: 16px; line-height: 1.72; color: var(--ink-2); }
 @keyframes reelFade { 0% { opacity:0; transform:scale(1.04); } 8% { opacity:1; transform:scale(1); } 30% { opacity:1; transform:scale(1.025); } 38% { opacity:0; transform:scale(1.05); } 100% { opacity:0; transform:scale(1.05); } }
 .showreel-overlay { position: absolute; inset: 0; background: linear-gradient(180deg,rgba(0,0,0,.02),rgba(0,0,0,.30)),linear-gradient(90deg,rgba(0,0,0,.18),rgba(0,0,0,.02)); }
 .showreel-copy { display: none !important; }
-.generation-chip { position: absolute; left: 22px; bottom: 22px; z-index: 2; display: inline-flex; align-items: center; gap: 8px; border-radius: 10px; padding: 9px 12px; background: var(--accent); color: var(--ink); font-size: 11px; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; }
-.generation-chip i { width: 6px; height: 6px; border-radius: 50%; background: var(--ink); animation: dotPulse 1.2s ease-in-out infinite; }
-@keyframes dotPulse { 0%,100% { opacity:.35; transform:scale(.8); } 50% { opacity:1; transform:scale(1.15); } }
+.generation-chip { display: none !important; }
 .itinerary-lines { position: absolute; left: 24px; right: 24px; bottom: 24px; z-index: 2; display: grid; gap: 8px; }
 .itinerary-line { display: grid; grid-template-columns: 72px 1fr; gap: 12px; align-items: center; min-height: 54px; padding: 10px 13px; border-radius: 18px; background: rgba(244,243,238,.92); border: 1px solid rgba(255,255,255,.62); opacity: 0; transform: translateY(12px); animation: lineBuild 9s infinite; }
 .line-1 { animation-delay:.55s; } .line-2 { animation-delay:1.25s; } .line-3 { animation-delay:1.95s; }
@@ -669,9 +721,9 @@ input[type="date"] { color-scheme: light; }
 /* ── MOOD GRID ── */
 .mood-screen { max-width: 1240px; }
 .mood-grid.image-grid { display: grid !important; grid-template-columns: repeat(3,minmax(0,1fr)) !important; gap: 14px !important; width: 100% !important; }
-.image-mood-tile { position: relative; overflow: hidden; border: 3px solid transparent !important; border-radius: 28px !important; padding: 0; text-align: left; background: var(--surface); height: 220px !important; min-height: 220px !important; transition: border-color .15s; box-shadow: none; }
+.image-mood-tile { position: relative; overflow: hidden; border: 4px solid transparent !important; border-radius: 28px !important; padding: 0; text-align: left; background: var(--surface); height: 220px !important; min-height: 220px !important; transition: border-color .15s; box-shadow: none; }
 .image-mood-tile:hover { border-color: var(--line-strong) !important; }
-.image-mood-tile.active { border-color: var(--gold-bright) !important; box-shadow: inset 0 0 0 1px var(--gold-bright) !important; }
+.image-mood-tile.active { border-color: var(--gold-bright) !important; box-shadow: 0 0 0 1px var(--gold-bright) !important; }
 .image-mood-tile img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(.86) saturate(1.08); transition: transform .4s var(--ease); }
 .image-mood-tile:hover img, .image-mood-tile.active img { transform: scale(1.03); }
 .image-tile-overlay { position: absolute; inset: 0; background: linear-gradient(to top,rgba(0,0,0,.48),rgba(0,0,0,.04) 68%); }
@@ -682,59 +734,224 @@ input[type="date"] { color-scheme: light; }
 .build-cta-row { margin: 34px 0 0; display: flex; justify-content: flex-end; }
 
 /* ── LOADING SCREEN ── */
+/* ═══════════════════════════════════════
+   LOADING SCREEN — 4-stage cinematic sequence
+   Stage 1 (0-5s):  Card shuffle + pill sort
+   Stage 2 (5-10s): Code being written
+   Stage 3 (10-15s): Wireframe itinerary
+   Stage 4 (15-20s): Gemini orb + finalise
+   Loop: 20s total
+═══════════════════════════════════════ */
 .loading-screen {
-  width: 100%;
-  min-height: calc(100vh - 72px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 48px;
-  padding: 48px 24px 56px;
+  width: 100%; min-height: calc(100vh - 64px);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 40px; padding: 40px 24px 48px;
   animation: scIn .3s var(--ease) both;
 }
 
-/* Scrolling image strip */
-.carousel-wrap {
-  width: 100%;
-  overflow: hidden;
-  mask-image: linear-gradient(to right, transparent 0%, #000 10%, #000 90%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 10%, #000 90%, transparent 100%);
-  flex-shrink: 0;
-}
-.carousel-track {
-  display: flex;
-  gap: 12px;
-  animation: slideLeft 22s linear infinite;
-  will-change: transform;
-}
-@keyframes slideLeft { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-.cimg {
-  flex-shrink: 0;
-  width: 200px;
-  height: 130px;
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid var(--line-strong);
+/* Stage container */
+.loader-stage {
   position: relative;
+  width: min(520px, 100%);
+  height: 280px;
+  flex-shrink: 0;
 }
-.cimg img { width: 100%; height: 100%; object-fit: cover; filter: brightness(.58) saturate(.75); }
-.cimg-lbl { position: absolute; bottom: 10px; left: 12px; font-size: 12px; font-weight: 800; color: #fff; letter-spacing: -.01em; }
 
-/* Centre column */
-.loader-centre {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 32px;
-  width: min(480px, 100%);
-  text-align: center;
+/* Individual stages — each in/out on 20s loop */
+.ls {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
 }
-.loader-head { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.loader-pill { display: inline-flex; align-items: center; gap: 7px; background: var(--ink); border-radius: 8px; padding: 6px 11px; }
-.loader-pill span { font-size: 10px; font-weight: 800; color: var(--bg); text-transform: uppercase; letter-spacing: .08em; }
-.loader-pulse { width: 6px !important; height: 6px !important; border-radius: 50% !important; background: var(--accent) !important; flex-shrink: 0; animation: lpulse 1.4s ease-in-out infinite; }
-@keyframes lpulse { 0%,100% { opacity:.35; transform:scale(.8); } 50% { opacity:1; transform:scale(1.25); } }
+
+/* Stage 1: 0-5s */
+.ls-1 { animation: stageInOut 20s infinite 0s; }
+/* Stage 2: 5-10s */
+.ls-2 { animation: stageInOut 20s infinite -15s; }
+/* Stage 3: 10-15s */
+.ls-3 { animation: stageInOut 20s infinite -10s; }
+/* Stage 4: 15-20s */
+.ls-4 { animation: stageInOut 20s infinite -5s; }
+
+@keyframes stageInOut {
+  0%    { opacity:0; transform: scale(.96) translateY(6px); }
+  4%    { opacity:1; transform: scale(1) translateY(0); }
+  21%   { opacity:1; transform: scale(1) translateY(0); }
+  25%   { opacity:0; transform: scale(1.02) translateY(-4px); }
+  100%  { opacity:0; transform: scale(.96) translateY(6px); }
+}
+
+/* ── STAGE 1: Cards + Pills ── */
+.ls-1 { flex-direction: column; gap: 20px; }
+.lcard {
+  position: absolute;
+  border-radius: 18px; overflow: hidden;
+  border: 1px solid var(--line-strong);
+}
+.lcard img { width: 100%; height: 100%; object-fit: cover; filter: brightness(.58) saturate(.78); }
+.lcard-ov { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.6), transparent 55%); }
+.lcard-lbl { position: absolute; bottom: 10px; left: 12px; font-size: 12px; font-weight: 800; color: #fff; letter-spacing: -.01em; }
+
+.lcard-0 { width: 155px; height: 115px; left: 10px; top: 30px; animation: lc0 5s ease-in-out infinite; z-index: 1; }
+.lcard-1 { width: 200px; height: 150px; left: 50%; transform: translateX(-50%); top: 10px; animation: lc1 5s ease-in-out infinite .3s; z-index: 3; }
+.lcard-2 { width: 150px; height: 112px; right: 10px; top: 35px; animation: lc2 5s ease-in-out infinite .6s; z-index: 1; }
+
+@keyframes lc0 {
+  0%   { transform: translate(60px, 20px) rotate(8deg) scale(.85); opacity:0; }
+  20%  { transform: translate(0,0) rotate(-3deg) scale(1); opacity:1; }
+  80%  { transform: translate(0,0) rotate(-3deg) scale(1); opacity:1; }
+  100% { transform: translate(-10px,0) rotate(-3deg) scale(1); opacity:.9; }
+}
+@keyframes lc1 {
+  0%   { transform: translateX(-50%) translateY(30px) scale(.8); opacity:0; }
+  25%  { transform: translateX(-50%) translateY(0) scale(1); opacity:1; }
+  80%  { transform: translateX(-50%) translateY(0) scale(1); opacity:1; }
+  100% { transform: translateX(-50%) translateY(0) scale(1); opacity:1; }
+}
+@keyframes lc2 {
+  0%   { transform: translate(-60px, 20px) rotate(-8deg) scale(.85); opacity:0; }
+  30%  { transform: translate(0,0) rotate(3deg) scale(1); opacity:1; }
+  80%  { transform: translate(0,0) rotate(3deg) scale(1); opacity:1; }
+  100% { transform: translate(10px,0) rotate(3deg) scale(1); opacity:.9; }
+}
+
+.lspills {
+  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 6px; z-index: 10; white-space: nowrap;
+}
+.lspill {
+  padding: 6px 13px; border-radius: 999px;
+  background: var(--bg); border: 1px solid var(--line-strong);
+  font-size: 11px; font-weight: 700; color: var(--ink-2);
+  opacity: 0; transform: translateY(10px);
+  animation: spillIn 5s ease-in-out infinite;
+}
+.lspill-0 { animation-delay: .5s; }
+.lspill-1 { animation-delay: .8s; background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.lspill-2 { animation-delay: 1.1s; background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.lspill-3 { animation-delay: 1.4s; }
+.lspill-4 { animation-delay: 1.7s; }
+@keyframes spillIn {
+  0%,10%  { opacity:0; transform:translateY(10px); }
+  30%,75% { opacity:1; transform:translateY(0); }
+  90%,100%{ opacity:0; transform:translateY(-6px); }
+}
+
+/* ── STAGE 2: Code window ── */
+.code-window {
+  width: min(420px, 100%);
+  border-radius: 16px;
+  background: #1A1A18;
+  border: 1px solid rgba(255,255,255,.07);
+  overflow: hidden;
+}
+.code-topbar {
+  display: flex; gap: 6px; align-items: center;
+  padding: 10px 14px;
+  background: rgba(255,255,255,.04);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.code-topbar span {
+  width: 10px; height: 10px; border-radius: 50%;
+}
+.code-topbar span:nth-child(1) { background: #FF5F57; }
+.code-topbar span:nth-child(2) { background: #FFBD2E; }
+.code-topbar span:nth-child(3) { background: #28CA41; }
+.code-body {
+  padding: 16px 18px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 12px; line-height: 1.8;
+  color: rgba(255,255,255,.55);
+}
+.code-line { overflow: hidden; white-space: nowrap; width: 0; }
+.code-line em { color: var(--accent); font-style: normal; }
+.cl-1 { animation: typeIn 20s infinite 0s; }
+.cl-2 { animation: typeIn 20s infinite -.9s; }
+.cl-3 { animation: typeIn 20s infinite -1.8s; }
+.cl-4 { animation: typeIn 20s infinite -2.7s; }
+.cl-5 { animation: typeIn 20s infinite -3.6s; }
+.cl-6 { animation: typeIn 20s infinite -4.4s; color: rgba(255,255,255,.85); }
+@keyframes typeIn {
+  0%,2%  { width:0; opacity:1; }
+  18%    { width:100%; opacity:1; }
+  22%,100%{ width:100%; opacity:0.7; }
+}
+.code-cursor {
+  display: inline-block; width: 8px; height: 14px;
+  background: var(--accent); border-radius: 2px;
+  animation: blink .8s step-end infinite;
+  vertical-align: middle; margin-left: 2px;
+}
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+/* ── STAGE 3: Wireframe ── */
+.wire-frame {
+  width: min(380px,100%);
+  border-radius: 16px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.wire-hero {
+  height: 80px; border-radius: 10px;
+  background: linear-gradient(90deg, var(--surface-3) 25%, var(--surface-2) 50%, var(--surface-3) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+.wire-meta { display: flex; flex-direction: column; gap: 6px; }
+.wire-tag { height: 10px; width: 60px; border-radius: 999px; background: var(--surface-3); animation: shimmer 1.5s ease-in-out infinite .1s; }
+.wire-title { height: 18px; width: 70%; border-radius: 6px; background: var(--surface-3); animation: shimmer 1.5s ease-in-out infinite .2s; }
+.wire-sub { height: 12px; width: 45%; border-radius: 6px; background: var(--surface-3); animation: shimmer 1.5s ease-in-out infinite .3s; }
+.wire-stops { display: flex; flex-direction: column; gap: 8px; }
+.wire-stop { display: flex; align-items: center; gap: 10px; }
+.wire-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+.wire-lines { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.wire-line { height: 8px; border-radius: 4px; background: var(--surface-3); animation: shimmer 1.5s ease-in-out infinite; }
+.wl-a { width: 80%; }
+.wl-b { width: 55%; animation-delay: .15s; }
+.wire-img { width: 48px; height: 36px; border-radius: 8px; background: var(--surface-3); flex-shrink: 0; animation: shimmer 1.5s ease-in-out infinite .2s; }
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.wire-hero, .wire-tag, .wire-title, .wire-sub, .wire-line, .wire-img {
+  background-size: 200% 100%;
+  background-image: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 50%, var(--surface-2) 75%);
+}
+
+/* ── STAGE 4: Gemini orb ── */
+.ls-4 { flex-direction: column; gap: 20px; }
+.gemini-orb { position: relative; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
+.gorb-ring {
+  position: absolute; border-radius: 50%; border: 1.5px solid var(--accent);
+}
+.r1 { width: 100%; height: 100%; opacity: .15; animation: orbPulse 2s ease-in-out infinite; }
+.r2 { width: 72%; height: 72%; opacity: .28; animation: orbPulse 2s ease-in-out infinite .4s; }
+.r3 { width: 44%; height: 44%; opacity: .5; animation: orbPulse 2s ease-in-out infinite .8s; }
+@keyframes orbPulse { 0%,100%{transform:scale(1);opacity:.15;} 50%{transform:scale(1.06);opacity:.35;} }
+.r2 { animation-name: orbPulse2; }
+@keyframes orbPulse2 { 0%,100%{transform:scale(1);opacity:.28;} 50%{transform:scale(1.08);opacity:.5;} }
+.r3 { animation-name: orbPulse3; }
+@keyframes orbPulse3 { 0%,100%{transform:scale(1);opacity:.5;} 50%{transform:scale(1.1);opacity:.8;} }
+.gorb-core {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--accent); display: flex; align-items: center; justify-content: center;
+  font-size: 14px; animation: coreGlow 2s ease-in-out infinite;
+  z-index: 1;
+}
+@keyframes coreGlow { 0%,100%{box-shadow:0 0 0 rgba(201,168,76,0);} 50%{box-shadow:0 0 22px rgba(201,168,76,.45);} }
+.gemini-label {
+  font-size: 13px; font-weight: 600; color: var(--ink-3);
+  letter-spacing: -.01em; margin: 0;
+}
+
+/* ── BOTTOM: headline + list ── */
+.loader-bottom {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 24px; width: min(460px, 100%); text-align: center;
+}
 .loader-headline { font-size: clamp(32px,4vw,48px) !important; font-weight: 900 !important; letter-spacing: -.045em !important; line-height: 1.0 !important; margin: 0 !important; color: var(--ink) !important; }
 .loader-sub { font-size: 13px; font-weight: 500; color: var(--ink-3); margin: 0; line-height: 1.4; }
 
@@ -785,44 +1002,34 @@ input[type="date"] { color-scheme: light; }
 
 /* ── TIMELINE ── */
 .timeline { max-width: 100% !important; margin: 0 auto; padding: 48px 0 90px !important; }
+.timeline > .label { margin-bottom: 40px; }
 .stop { display: flex; position: relative; margin-bottom: 44px; }
-.stop:not(:last-child)::after { content: ""; position: absolute; left: 20px; top: 44px; bottom: -44px; width: 1px; background: rgba(0,0,0,.12); }
+.stop:not(:last-child)::after { content: ""; position: absolute; left: 4px; top: 22px; bottom: -44px; width: 1px; background: var(--line-strong); }
 
-/* ── STOP PIN — clean numbered circle ── */
+/* ── STOP PIN — minimal dot ── */
 .s-pin {
-  width: 42px;
-  height: 42px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: var(--surface-2);
-  border: 1px solid var(--line-strong);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: var(--surface-3);
+  border: 2px solid var(--line-strong);
   flex-shrink: 0;
-  margin-right: 22px;
-  margin-top: 2px;
+  margin-right: 28px;
+  margin-top: 10px;
 }
 .s-pin-featured {
   background: var(--gold) !important;
   border-color: var(--gold) !important;
 }
-.s-pin-index {
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--ink-3);
-  letter-spacing: .04em;
-}
-.s-pin-featured .s-pin-index {
-  color: var(--ink);
-}
+.s-pin-index { display: none; }
 
 .s-body { flex: 1; min-width: 0; display: grid; grid-template-columns: minmax(0,1fr) minmax(300px,440px); column-gap: 40px; align-items: start; }
 .s-body > .s-cat, .s-body > h3, .s-body > h4, .s-body > p, .s-body > small, .s-body > .place-meta { grid-column: 1; }
 .s-body > .s-photo { grid-column: 2; grid-row: 1 / span 7; }
 .s-cat { font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 5px; }
-.s-body h3 { font-size: 30px; font-weight: 900; letter-spacing: -.045em; color: var(--ink); margin: 0 0 4px; }
+.s-body h3 { font-size: 13px; font-weight: 500; letter-spacing: .04em; color: var(--ink-3); margin: 0 0 6px; text-transform: uppercase; }
 .s-body h3 span { font-size: 12px; font-weight: 600; color: var(--ink-3); margin-left: 4px; }
-.s-body h4 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 8px; letter-spacing: -.02em; }
+.s-body h4 { font-size: 22px; font-weight: 800; color: var(--ink); margin: 0 0 10px; letter-spacing: -.03em; }
 .s-body p { font-size: 14px; line-height: 1.68; color: var(--ink-2); margin-bottom: 14px; }
 .s-body small { display: block; color: var(--ink-3); font-size: 12px; line-height: 1.5; }
 
