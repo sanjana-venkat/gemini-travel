@@ -200,7 +200,7 @@ function App() {
     setError("");
     setLoadingLine(0);
     setItinerary(null);
-    const interval = setInterval(() => { setLoadingLine((v) => Math.min(v + 1, loadingItems.length - 2)); }, 650);
+    const interval = setInterval(() => { setLoadingLine((v) => Math.min(v + 1, loadingItems.length - 2)); }, 2200);
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
@@ -352,69 +352,131 @@ function App() {
 
       {step === "loading" && (
         <main className="loading-screen on">
+
+          {/* Visual stage — driven by loadingLine (0-6) */}
           <div className="loader-stage">
 
-            {/* Stage 1: Cards shuffle in */}
-            <div className="ls ls-1">
-              {selectedMoodObjects.concat(moodVibes).slice(0, 3).map((mood, i) => (
-                <div className={`lcard lcard-${i}`} key={mood.id}>
-                  <img src={mood.img} alt="" />
-                  <div className="lcard-ov" />
-                  <span className="lcard-lbl">{mood.title}</span>
+            {/* Stage 0: Quick feeler profile — profile pic with spinning ring */}
+            <div className={`ls${loadingLine === 0 ? " ls-active" : loadingLine > 0 ? " ls-done" : ""}`}>
+              <div className="ls-profile">
+                <div className="profile-ring-wrap">
+                  <svg className="profile-ring-svg" viewBox="0 0 120 120">
+                    <circle className="ring-bg" cx="60" cy="60" r="54"/>
+                    <circle className="ring-fill" cx="60" cy="60" r="54"/>
+                  </svg>
+                  {user?.picture
+                    ? <img className="profile-pic" src={user.picture} alt={user.name} />
+                    : <div className="profile-pic profile-pic-fallback"><span>{(user?.name || "You")[0]}</span></div>
+                  }
                 </div>
-              ))}
-              <div className="lspills">
-                {[destination, ...selectedMoodObjects.map(m => m.title), diet, planFor].filter(Boolean).map((label, i) => (
-                  <span className={`lspill lspill-${i}`} key={label}>{label}</span>
+                <div className="profile-meta">
+                  <p className="profile-name">{user?.name || "Quick feeler mode"}</p>
+                  {user?.email && <p className="profile-email">{user.email}</p>}
+                </div>
+              </div>
+            </div>
+
+            {/* Stage 1–2: Mood signals + dietary — cards shuffle, pills sort */}
+            <div className={`ls${loadingLine === 1 || loadingLine === 2 ? " ls-active" : loadingLine > 2 ? " ls-done" : ""}`}>
+              <div className="ls-moods">
+                {selectedMoodObjects.concat(moodVibes).slice(0, 3).map((mood, i) => (
+                  <div className={`lcard lcard-${i}`} key={mood.id + i}>
+                    <img src={mood.img} alt="" />
+                    <div className="lcard-ov" />
+                    <span className="lcard-lbl">{mood.title}</span>
+                  </div>
                 ))}
-              </div>
-            </div>
-
-            {/* Stage 2: Code being written */}
-            <div className="ls ls-2">
-              <div className="code-window">
-                <div className="code-topbar"><span/><span/><span/></div>
-                <div className="code-body">
-                  <div className="code-line cl-1"><em>const</em> dna <em>=</em> buildTravelDNA&#40;&#123;</div>
-                  <div className="code-line cl-2">{"  "}mood: [<em>"{selectedMoodObjects[0]?.title || 'adventurous'}"</em>],</div>
-                  <div className="code-line cl-3">{"  "}destination: <em>"{destination}"</em>,</div>
-                  <div className="code-line cl-4">{"  "}diet: <em>"{diet}"</em>, with: <em>"{planFor}"</em></div>
-                  <div className="code-line cl-5">&#125;&#41;&#59;</div>
-                  <div className="code-line cl-6"><em>await</em> gemini.generate&#40;dna&#41;&#59;</div>
-                  <div className="code-cursor"/>
-                </div>
-              </div>
-            </div>
-
-            {/* Stage 3: Wireframe itinerary */}
-            <div className="ls ls-3">
-              <div className="wire-frame">
-                <div className="wire-hero"/>
-                <div className="wire-meta"><div className="wire-tag"/><div className="wire-title"/><div className="wire-sub"/></div>
-                <div className="wire-stops">
-                  {[0,1,2].map(i => (
-                    <div className="wire-stop" key={i}>
-                      <div className="wire-dot"/>
-                      <div className="wire-lines"><div className="wire-line wl-a"/><div className="wire-line wl-b"/></div>
-                      <div className="wire-img"/>
-                    </div>
+                <div className="lspills">
+                  {[...selectedMoodObjects.map(m => m.title), diet, planFor].filter(Boolean).map((label, i) => (
+                    <span className={`lspill lspill-${i}`} key={label}>{label}</span>
                   ))}
                 </div>
               </div>
             </div>
 
-            {/* Stage 4: Gemini finalising */}
-            <div className="ls ls-4">
-              <div className="gemini-orb">
-                <div className="gorb-ring r1"/><div className="gorb-ring r2"/><div className="gorb-ring r3"/>
-                <div className="gorb-core"><span className="gem">✦</span></div>
+            {/* Stage 3: Destination context — map sketch with dots */}
+            <div className={`ls${loadingLine === 3 ? " ls-active" : loadingLine > 3 ? " ls-done" : ""}`}>
+              <div className="ls-map">
+                <div className="map-dest-label">{destination}</div>
+                <div className="map-sketch">
+                  <svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg" className="map-svg">
+                    {/* Sketchy map path lines */}
+                    <path d="M 40 80 Q 80 60 120 90 T 200 70 T 280 95 T 360 75" className="map-path mp1"/>
+                    <path d="M 60 120 Q 110 100 160 125 T 250 108 T 340 118" className="map-path mp2"/>
+                    <path d="M 80 150 Q 140 135 200 155 T 320 145" className="map-path mp3"/>
+                    <path d="M 100 50 L 100 170" className="map-path mp4"/>
+                    <path d="M 200 40 L 200 175" className="map-path mp5"/>
+                    <path d="M 300 55 L 300 168" className="map-path mp6"/>
+                    {/* Animated map dots */}
+                    <circle className="map-dot md1" cx="120" cy="88" r="6"/>
+                    <circle className="map-dot md2" cx="200" cy="70" r="6"/>
+                    <circle className="map-dot md3" cx="300" cy="95" r="6"/>
+                    <circle className="map-dot md4" cx="160" cy="124" r="5"/>
+                    <circle className="map-dot md5" cx="260" cy="108" r="5"/>
+                  </svg>
+                </div>
               </div>
-              <p className="gemini-label">Gemini is finalising your plan</p>
+            </div>
+
+            {/* Stage 4: Google Places — map dots expand into photos */}
+            <div className={`ls${loadingLine === 4 ? " ls-active" : loadingLine > 4 ? " ls-done" : ""}`}>
+              <div className="ls-places">
+                {selectedMoodObjects.concat(moodVibes).slice(0, 4).map((mood, i) => (
+                  <div className={`place-bubble pb-${i}`} key={mood.id + i}>
+                    <img src={mood.img} alt="" />
+                    <div className="pb-ov"/>
+                    <span className="pb-rating">★ {(4.2 + i * 0.2).toFixed(1)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Stage 5: Real photos — same bubbles with ratings */}
+            <div className={`ls${loadingLine === 5 ? " ls-active" : loadingLine > 5 ? " ls-done" : ""}`}>
+              <div className="ls-photos">
+                {selectedMoodObjects.concat(moodVibes).slice(0, 5).map((mood, i) => (
+                  <div className={`photo-card pc-${i}`} key={mood.id + i}>
+                    <img src={mood.img} alt="" />
+                    <div className="photo-card-ov"/>
+                    <div className="photo-card-meta">
+                      <span className="photo-rating">★ {(4.1 + i * 0.15).toFixed(1)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Stage 6: Gemini itinerary wireframe */}
+            <div className={`ls${loadingLine === 6 ? " ls-active" : ""}`}>
+              <div className="wire-frame">
+                <div className="wire-hero"/>
+                <div className="wire-meta">
+                  <div className="wire-tag"/>
+                  <div className="wire-title"/>
+                  <div className="wire-sub"/>
+                </div>
+                <div className="wire-stops">
+                  {[0,1,2].map(i => (
+                    <div className="wire-stop" key={i}>
+                      <div className="wire-dot"/>
+                      <div className="wire-lines">
+                        <div className="wire-line wl-a" style={{animationDelay: `${i*0.2}s`}}/>
+                        <div className="wire-line wl-b" style={{animationDelay: `${i*0.2+0.1}s`}}/>
+                      </div>
+                      <div className="wire-img" style={{animationDelay: `${i*0.15}s`}}/>
+                    </div>
+                  ))}
+                </div>
+                <div className="wire-gemini-badge">
+                  <span className="gorb-core-sm">✦</span>
+                  <span>Gemini writing your plan…</span>
+                </div>
+              </div>
             </div>
 
           </div>
 
-          {/* Bottom: headline + list always visible */}
+          {/* Bottom: headline + list */}
           <div className="loader-bottom">
             <div className="loader-head">
               <h2 className="loader-headline">Decoding your<br/><span className="gem">Travel DNA</span></h2>
@@ -735,217 +797,249 @@ input[type="date"] { color-scheme: light; }
 
 /* ── LOADING SCREEN ── */
 /* ═══════════════════════════════════════
-   LOADING SCREEN — 4-stage cinematic sequence
-   Stage 1 (0-5s):  Card shuffle + pill sort
-   Stage 2 (5-10s): Code being written
-   Stage 3 (10-15s): Wireframe itinerary
-   Stage 4 (15-20s): Gemini orb + finalise
-   Loop: 20s total
+   LOADING — narrative stages driven by loadingLine
 ═══════════════════════════════════════ */
 .loading-screen {
   width: 100%; min-height: calc(100vh - 64px);
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  gap: 40px; padding: 40px 24px 48px;
+  gap: 36px; padding: 36px 24px 44px;
   animation: scIn .3s var(--ease) both;
 }
 
-/* Stage container */
 .loader-stage {
   position: relative;
-  width: min(520px, 100%);
-  height: 280px;
+  width: min(540px, 100%);
+  height: 260px;
   flex-shrink: 0;
 }
 
-/* Individual stages — each in/out on 20s loop */
+/* Each .ls is a visual stage — hidden by default */
 .ls {
   position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
   opacity: 0; pointer-events: none;
+  transform: scale(.97) translateY(8px);
+  transition: opacity .5s var(--ease), transform .5s var(--ease);
+}
+.ls.ls-active {
+  opacity: 1; transform: scale(1) translateY(0); pointer-events: auto;
+}
+.ls.ls-done {
+  opacity: 0; transform: scale(1.02) translateY(-6px);
 }
 
-/* Stage 1: 0-5s */
-.ls-1 { animation: stageInOut 20s infinite 0s; }
-/* Stage 2: 5-10s */
-.ls-2 { animation: stageInOut 20s infinite -15s; }
-/* Stage 3: 10-15s */
-.ls-3 { animation: stageInOut 20s infinite -10s; }
-/* Stage 4: 15-20s */
-.ls-4 { animation: stageInOut 20s infinite -5s; }
-
-@keyframes stageInOut {
-  0%    { opacity:0; transform: scale(.96) translateY(6px); }
-  4%    { opacity:1; transform: scale(1) translateY(0); }
-  21%   { opacity:1; transform: scale(1) translateY(0); }
-  25%   { opacity:0; transform: scale(1.02) translateY(-4px); }
-  100%  { opacity:0; transform: scale(.96) translateY(6px); }
+/* ── STAGE 0: Profile ── */
+.ls-profile {
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
 }
+.profile-ring-wrap {
+  position: relative; width: 110px; height: 110px;
+}
+.profile-ring-svg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  transform: rotate(-90deg);
+}
+.ring-bg {
+  fill: none; stroke: var(--surface-2); stroke-width: 4;
+}
+.ring-fill {
+  fill: none; stroke: var(--accent); stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 339;
+  stroke-dashoffset: 339;
+  animation: ringFill 2.2s var(--ease) forwards;
+}
+@keyframes ringFill { to { stroke-dashoffset: 50; } }
+.profile-pic {
+  position: absolute; inset: 8px; border-radius: 50%;
+  object-fit: cover; width: calc(100% - 16px); height: calc(100% - 16px);
+}
+.profile-pic-fallback {
+  position: absolute; inset: 8px; border-radius: 50%;
+  background: var(--surface-2); display: flex; align-items: center; justify-content: center;
+}
+.profile-pic-fallback span { font-size: 32px; font-weight: 800; color: var(--ink-3); }
+.profile-meta { text-align: center; }
+.profile-name { font-size: 16px; font-weight: 700; color: var(--ink); margin: 0; line-height: 1.3; }
+.profile-email { font-size: 12px; color: var(--ink-3); margin: 3px 0 0; }
 
-/* ── STAGE 1: Cards + Pills ── */
-.ls-1 { flex-direction: column; gap: 20px; }
+/* ── STAGE 1–2: Mood cards + pills ── */
+.ls-moods { position: relative; width: 100%; height: 100%; }
 .lcard {
-  position: absolute;
-  border-radius: 18px; overflow: hidden;
+  position: absolute; border-radius: 18px; overflow: hidden;
   border: 1px solid var(--line-strong);
 }
-.lcard img { width: 100%; height: 100%; object-fit: cover; filter: brightness(.58) saturate(.78); }
-.lcard-ov { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.6), transparent 55%); }
-.lcard-lbl { position: absolute; bottom: 10px; left: 12px; font-size: 12px; font-weight: 800; color: #fff; letter-spacing: -.01em; }
-
-.lcard-0 { width: 155px; height: 115px; left: 10px; top: 30px; animation: lc0 5s ease-in-out infinite; z-index: 1; }
-.lcard-1 { width: 200px; height: 150px; left: 50%; transform: translateX(-50%); top: 10px; animation: lc1 5s ease-in-out infinite .3s; z-index: 3; }
-.lcard-2 { width: 150px; height: 112px; right: 10px; top: 35px; animation: lc2 5s ease-in-out infinite .6s; z-index: 1; }
-
+.lcard img { width: 100%; height: 100%; object-fit: cover; filter: brightness(.58) saturate(.8); }
+.lcard-ov { position: absolute; inset: 0; background: linear-gradient(to top,rgba(0,0,0,.65),transparent 55%); }
+.lcard-lbl { position: absolute; bottom: 10px; left: 12px; font-size: 12px; font-weight: 800; color: #fff; }
+.lcard-0 { width: 155px; height: 115px; left: 20px; top: 30px;
+  animation: lc0 2.2s var(--ease) forwards; z-index: 1; }
+.lcard-1 { width: 195px; height: 148px; left: 50%; top: 14px;
+  animation: lc1 2.2s var(--ease) .15s forwards; transform: translateX(-50%); z-index: 3; }
+.lcard-2 { width: 148px; height: 112px; right: 20px; top: 35px;
+  animation: lc2 2.2s var(--ease) .3s forwards; z-index: 1; }
 @keyframes lc0 {
-  0%   { transform: translate(60px, 20px) rotate(8deg) scale(.85); opacity:0; }
-  20%  { transform: translate(0,0) rotate(-3deg) scale(1); opacity:1; }
-  80%  { transform: translate(0,0) rotate(-3deg) scale(1); opacity:1; }
-  100% { transform: translate(-10px,0) rotate(-3deg) scale(1); opacity:.9; }
+  0% { transform: translate(80px,30px) rotate(12deg) scale(.75); opacity:0; }
+  100%{ transform: translate(0,0) rotate(-3deg) scale(1); opacity:1; }
 }
 @keyframes lc1 {
-  0%   { transform: translateX(-50%) translateY(30px) scale(.8); opacity:0; }
-  25%  { transform: translateX(-50%) translateY(0) scale(1); opacity:1; }
-  80%  { transform: translateX(-50%) translateY(0) scale(1); opacity:1; }
-  100% { transform: translateX(-50%) translateY(0) scale(1); opacity:1; }
+  0% { transform: translateX(-50%) translateY(40px) scale(.8); opacity:0; }
+  100%{ transform: translateX(-50%) translateY(0) scale(1); opacity:1; }
 }
 @keyframes lc2 {
-  0%   { transform: translate(-60px, 20px) rotate(-8deg) scale(.85); opacity:0; }
-  30%  { transform: translate(0,0) rotate(3deg) scale(1); opacity:1; }
-  80%  { transform: translate(0,0) rotate(3deg) scale(1); opacity:1; }
-  100% { transform: translate(10px,0) rotate(3deg) scale(1); opacity:.9; }
+  0% { transform: translate(-80px,30px) rotate(-12deg) scale(.75); opacity:0; }
+  100%{ transform: translate(0,0) rotate(3deg) scale(1); opacity:1; }
 }
-
 .lspills {
   position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-  display: flex; gap: 6px; z-index: 10; white-space: nowrap;
+  display: flex; gap: 6px; z-index: 10; flex-wrap: nowrap;
 }
 .lspill {
   padding: 6px 13px; border-radius: 999px;
   background: var(--bg); border: 1px solid var(--line-strong);
   font-size: 11px; font-weight: 700; color: var(--ink-2);
-  opacity: 0; transform: translateY(10px);
-  animation: spillIn 5s ease-in-out infinite;
+  white-space: nowrap; opacity: 0; transform: translateY(10px);
+  animation: spillIn 2.2s var(--ease) forwards;
 }
-.lspill-0 { animation-delay: .5s; }
-.lspill-1 { animation-delay: .8s; background: var(--ink); color: var(--bg); border-color: var(--ink); }
-.lspill-2 { animation-delay: 1.1s; background: var(--ink); color: var(--bg); border-color: var(--ink); }
-.lspill-3 { animation-delay: 1.4s; }
-.lspill-4 { animation-delay: 1.7s; }
+.lspill-0 { animation-delay: .4s; }
+.lspill-1 { animation-delay: .65s; background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.lspill-2 { animation-delay: .9s; background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.lspill-3 { animation-delay: 1.1s; }
+.lspill-4 { animation-delay: 1.3s; }
 @keyframes spillIn {
-  0%,10%  { opacity:0; transform:translateY(10px); }
-  30%,75% { opacity:1; transform:translateY(0); }
-  90%,100%{ opacity:0; transform:translateY(-6px); }
+  0% { opacity:0; transform:translateY(10px); }
+  60%,100% { opacity:1; transform:translateY(0); }
 }
 
-/* ── STAGE 2: Code window ── */
-.code-window {
-  width: min(420px, 100%);
-  border-radius: 16px;
-  background: #1A1A18;
-  border: 1px solid rgba(255,255,255,.07);
-  overflow: hidden;
+/* ── STAGE 3: Map ── */
+.ls-map { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
+.map-dest-label {
+  font-size: 13px; font-weight: 700; color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: .08em;
 }
-.code-topbar {
-  display: flex; gap: 6px; align-items: center;
-  padding: 10px 14px;
-  background: rgba(255,255,255,.04);
-  border-bottom: 1px solid rgba(255,255,255,.06);
+.map-sketch {
+  width: 100%; border-radius: 16px;
+  background: var(--surface); border: 1px solid var(--line-strong);
+  padding: 8px; overflow: hidden;
 }
-.code-topbar span {
-  width: 10px; height: 10px; border-radius: 50%;
+.map-svg { width: 100%; height: 180px; }
+.map-path {
+  fill: none; stroke: var(--line-strong); stroke-width: 1.5;
+  stroke-dasharray: 400; stroke-dashoffset: 400;
+  animation: drawPath 1.8s var(--ease) forwards;
 }
-.code-topbar span:nth-child(1) { background: #FF5F57; }
-.code-topbar span:nth-child(2) { background: #FFBD2E; }
-.code-topbar span:nth-child(3) { background: #28CA41; }
-.code-body {
-  padding: 16px 18px;
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 12px; line-height: 1.8;
-  color: rgba(255,255,255,.55);
+.mp1 { animation-delay: .0s; }
+.mp2 { animation-delay: .2s; }
+.mp3 { animation-delay: .4s; }
+.mp4 { animation-delay: .15s; stroke: var(--line); }
+.mp5 { animation-delay: .25s; stroke: var(--line); }
+.mp6 { animation-delay: .35s; stroke: var(--line); }
+@keyframes drawPath { to { stroke-dashoffset: 0; } }
+.map-dot {
+  fill: var(--accent); opacity: 0;
+  animation: dotPop .4s var(--ease) forwards;
 }
-.code-line { overflow: hidden; white-space: nowrap; width: 0; }
-.code-line em { color: var(--accent); font-style: normal; }
-.cl-1 { animation: typeIn 20s infinite 0s; }
-.cl-2 { animation: typeIn 20s infinite -.9s; }
-.cl-3 { animation: typeIn 20s infinite -1.8s; }
-.cl-4 { animation: typeIn 20s infinite -2.7s; }
-.cl-5 { animation: typeIn 20s infinite -3.6s; }
-.cl-6 { animation: typeIn 20s infinite -4.4s; color: rgba(255,255,255,.85); }
-@keyframes typeIn {
-  0%,2%  { width:0; opacity:1; }
-  18%    { width:100%; opacity:1; }
-  22%,100%{ width:100%; opacity:0.7; }
+.md1 { animation-delay: .7s; }
+.md2 { animation-delay: .9s; }
+.md3 { animation-delay: 1.1s; }
+.md4 { animation-delay: 1.3s; }
+.md5 { animation-delay: 1.5s; }
+@keyframes dotPop {
+  0% { opacity:0; transform:scale(0); }
+  70%{ opacity:1; transform:scale(1.4); }
+  100%{ opacity:1; transform:scale(1); }
 }
-.code-cursor {
-  display: inline-block; width: 8px; height: 14px;
-  background: var(--accent); border-radius: 2px;
-  animation: blink .8s step-end infinite;
-  vertical-align: middle; margin-left: 2px;
-}
-@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
 
-/* ── STAGE 3: Wireframe ── */
+/* ── STAGE 4: Places bubbles ── */
+.ls-places { position: relative; width: 100%; height: 100%; }
+.place-bubble {
+  position: absolute; border-radius: 50%; overflow: hidden;
+  border: 2px solid var(--bg); opacity: 0;
+  animation: bubbleIn .5s var(--ease) forwards;
+}
+.pb-0 { width: 100px; height: 100px; left: 40px;  top: 50%; transform: translateY(-50%); animation-delay: .1s; }
+.pb-1 { width: 120px; height: 120px; left: 50%;   top: 50%; transform: translate(-50%,-50%); animation-delay: .3s; }
+.pb-2 { width: 95px;  height: 95px;  right: 40px; top: 50%; transform: translateY(-50%); animation-delay: .5s; }
+.pb-3 { width: 70px;  height: 70px;  left: 155px; top: 20px; animation-delay: .7s; }
+@keyframes bubbleIn {
+  0% { opacity:0; transform:translateY(-50%) scale(0); }
+  70%{ opacity:1; transform:translateY(-50%) scale(1.08); }
+  100%{ opacity:1; transform:translateY(-50%) scale(1); }
+}
+.pb-1 { animation-name: bubbleInCenter; }
+@keyframes bubbleInCenter {
+  0% { opacity:0; transform:translate(-50%,-50%) scale(0); }
+  70%{ opacity:1; transform:translate(-50%,-50%) scale(1.08); }
+  100%{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+}
+.pb-3 { animation-name: bubbleInTop; }
+@keyframes bubbleInTop {
+  0% { opacity:0; transform:scale(0); }
+  70%{ opacity:1; transform:scale(1.1); }
+  100%{ opacity:1; transform:scale(1); }
+}
+.place-bubble img { width:100%; height:100%; object-fit:cover; filter:brightness(.7) saturate(.85); }
+.pb-ov { position:absolute; inset:0; background:rgba(0,0,0,.25); }
+.pb-rating {
+  position:absolute; bottom:6px; left:50%; transform:translateX(-50%);
+  font-size:10px; font-weight:800; color:#fff; white-space:nowrap;
+}
+
+/* ── STAGE 5: Photo cards ── */
+.ls-photos { position: relative; width: 100%; height: 100%; }
+.photo-card {
+  position: absolute; border-radius: 14px; overflow: hidden;
+  border: 1px solid var(--line-strong); opacity: 0;
+  animation: photoSlide .5s var(--ease) forwards;
+}
+.pc-0 { width:130px; height:90px;  left:0;    top:10px;  animation-delay:.05s; }
+.pc-1 { width:110px; height:80px;  left:140px;top:0;     animation-delay:.15s; }
+.pc-2 { width:125px; height:95px;  right:0;   top:14px;  animation-delay:.25s; }
+.pc-3 { width:115px; height:78px;  left:60px; bottom:0;  animation-delay:.35s; }
+.pc-4 { width:120px; height:82px;  right:60px;bottom:4px;animation-delay:.45s; }
+@keyframes photoSlide {
+  0%   { opacity:0; transform:translateY(16px) scale(.92); }
+  100% { opacity:1; transform:translateY(0) scale(1); }
+}
+.photo-card img { width:100%; height:100%; object-fit:cover; filter:brightness(.72) saturate(.9); }
+.photo-card-ov { position:absolute; inset:0; background:linear-gradient(to top,rgba(0,0,0,.6),transparent 55%); }
+.photo-card-meta { position:absolute; bottom:6px; left:8px; }
+.photo-rating { font-size:10px; font-weight:800; color:#fff; }
+
+/* ── STAGE 6: Wireframe ── */
 .wire-frame {
-  width: min(380px,100%);
-  border-radius: 16px;
-  border: 1px solid var(--line-strong);
-  background: var(--surface);
-  padding: 16px;
-  display: flex; flex-direction: column; gap: 12px;
+  width: min(400px,100%); border-radius: 16px;
+  border: 1px solid var(--line-strong); background: var(--surface);
+  padding: 14px; display: flex; flex-direction: column; gap: 10px;
 }
-.wire-hero {
-  height: 80px; border-radius: 10px;
-  background: linear-gradient(90deg, var(--surface-3) 25%, var(--surface-2) 50%, var(--surface-3) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
-}
-.wire-meta { display: flex; flex-direction: column; gap: 6px; }
-.wire-tag { height: 10px; width: 60px; border-radius: 999px; background: var(--surface-3); animation: shimmer 1.5s ease-in-out infinite .1s; }
-.wire-title { height: 18px; width: 70%; border-radius: 6px; background: var(--surface-3); animation: shimmer 1.5s ease-in-out infinite .2s; }
-.wire-sub { height: 12px; width: 45%; border-radius: 6px; background: var(--surface-3); animation: shimmer 1.5s ease-in-out infinite .3s; }
-.wire-stops { display: flex; flex-direction: column; gap: 8px; }
-.wire-stop { display: flex; align-items: center; gap: 10px; }
-.wire-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
-.wire-lines { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.wire-line { height: 8px; border-radius: 4px; background: var(--surface-3); animation: shimmer 1.5s ease-in-out infinite; }
-.wl-a { width: 80%; }
-.wl-b { width: 55%; animation-delay: .15s; }
-.wire-img { width: 48px; height: 36px; border-radius: 8px; background: var(--surface-3); flex-shrink: 0; animation: shimmer 1.5s ease-in-out infinite .2s; }
-@keyframes shimmer {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
+.wire-hero { height: 72px; border-radius: 10px; }
+.wire-meta { display: flex; flex-direction: column; gap: 5px; }
+.wire-tag  { height: 9px;  width: 55px;  border-radius: 999px; }
+.wire-title{ height: 16px; width: 68%;   border-radius: 6px; }
+.wire-sub  { height: 10px; width: 42%;   border-radius: 6px; }
+.wire-stops{ display: flex; flex-direction: column; gap: 7px; }
+.wire-stop { display: flex; align-items: center; gap: 9px; }
+.wire-dot  { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+.wire-lines{ flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.wire-line { height: 7px; border-radius: 4px; }
+.wl-a { width: 78%; }
+.wl-b { width: 52%; }
+.wire-img  { width: 44px; height: 34px; border-radius: 7px; flex-shrink: 0; }
 .wire-hero, .wire-tag, .wire-title, .wire-sub, .wire-line, .wire-img {
-  background-size: 200% 100%;
   background-image: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
 }
-
-/* ── STAGE 4: Gemini orb ── */
-.ls-4 { flex-direction: column; gap: 20px; }
-.gemini-orb { position: relative; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
-.gorb-ring {
-  position: absolute; border-radius: 50%; border: 1.5px solid var(--accent);
+@keyframes shimmer { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
+.wire-gemini-badge {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-radius: 10px;
+  background: rgba(201,168,76,.08); border: 1px solid rgba(201,168,76,.2);
+  font-size: 12px; font-weight: 600; color: var(--accent);
 }
-.r1 { width: 100%; height: 100%; opacity: .15; animation: orbPulse 2s ease-in-out infinite; }
-.r2 { width: 72%; height: 72%; opacity: .28; animation: orbPulse 2s ease-in-out infinite .4s; }
-.r3 { width: 44%; height: 44%; opacity: .5; animation: orbPulse 2s ease-in-out infinite .8s; }
-@keyframes orbPulse { 0%,100%{transform:scale(1);opacity:.15;} 50%{transform:scale(1.06);opacity:.35;} }
-.r2 { animation-name: orbPulse2; }
-@keyframes orbPulse2 { 0%,100%{transform:scale(1);opacity:.28;} 50%{transform:scale(1.08);opacity:.5;} }
-.r3 { animation-name: orbPulse3; }
-@keyframes orbPulse3 { 0%,100%{transform:scale(1);opacity:.5;} 50%{transform:scale(1.1);opacity:.8;} }
-.gorb-core {
-  width: 32px; height: 32px; border-radius: 50%;
-  background: var(--accent); display: flex; align-items: center; justify-content: center;
-  font-size: 14px; animation: coreGlow 2s ease-in-out infinite;
-  z-index: 1;
-}
-@keyframes coreGlow { 0%,100%{box-shadow:0 0 0 rgba(201,168,76,0);} 50%{box-shadow:0 0 22px rgba(201,168,76,.45);} }
-.gemini-label {
-  font-size: 13px; font-weight: 600; color: var(--ink-3);
-  letter-spacing: -.01em; margin: 0;
-}
+.gorb-core-sm { font-size: 12px; animation: coreGlow 2s ease-in-out infinite; }
+@keyframes coreGlow { 0%,100%{opacity:.5;} 50%{opacity:1;} }
 
 /* ── BOTTOM: headline + list ── */
 .loader-bottom {
