@@ -615,7 +615,7 @@ p { font-size: 16px; line-height: 1.72; color: var(--ink-2); }
 .hero-left { display: flex; flex-direction: column; gap: 28px; }
 .hero-pill { display: inline-flex; align-items: center; gap: 0; background: none; border: none; padding: 0; }
 .pulse { display: none; }
-.hero-pill span { font-size: 13px; font-weight: 400; color: var(--ink-3); letter-spacing: 0; text-transform: none; font-style: italic; }
+.hero-pill span { font-size: 13px; font-weight: 400; color: var(--ink-3); letter-spacing: 0; text-transform: none; }
 .hero-left > p { max-width: 620px; font-size: clamp(17px,1.35vw,20px); line-height: 1.6; color: var(--ink-2); }
 .hero-cta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .google-wrap { min-height: 44px; display: inline-flex; align-items: center; border-radius: 999px; overflow: hidden; background: transparent; border: none; }
