@@ -201,7 +201,7 @@ const moodVibes = [
 function App() {
   const [user, setUser] = useState(null);
   const [step, setStep] = useState("login");
-  const [destination, setDestination] = useState("Kyoto, Japan");
+  const [destination, setDestination] = useState("Paris, France");
   const [placePredictions, setPlacePredictions] = useState([]);
   const [isAutocompleting, setIsAutocompleting] = useState(false);
   const [date, setDate] = useState(getToday());
@@ -460,8 +460,8 @@ function App() {
                 Today feels <span>different.</span>
               </h1>
               <p>
-                Personalization knows who you are. Mood reveals what matters right now.
-                Build a single evening, a full day, or a whole trip around the moment.
+                Because even the best recommendation system can't predict what you'll want today.
+                Whether it's a single evening, a full day, or a whole trip.
               </p>
 
               <div className="hero-cta">
@@ -487,11 +487,6 @@ function App() {
 
                 <div className="showreel-overlay" />
 
-                <div className="showreel-copy">
-                  <span>Preview itinerary</span>
-                  <h3>Kyoto · mood-led day</h3>
-                </div>
-
                 <div className="itinerary-lines">
                   <div className="itinerary-line line-1">
                     <b>08:30</b>
@@ -509,7 +504,7 @@ function App() {
 
                 <div className="generation-chip">
                   <i />
-                  <span>Generating plan</span>
+                  <span>Building itinerary</span>
                 </div>
               </div>
             </div>
@@ -548,7 +543,7 @@ function App() {
                   onClick={() => setDestination(item.label)}
                 >
                   {item.label}
-                  {item.source === "google" && <span>Maps</span>}
+
                 </button>
               ))}
               {isAutocompleting && <div className="autocomplete-loading">Searching Google Maps…</div>}
@@ -634,15 +629,9 @@ function App() {
             ))}
           </section>
 
-          <section className="bottom-cta glass-panel">
-            <div>
-              <p className="label">Selected mood</p>
-              <div className="selected-chips">
-                {selectedMoodObjects.map((v) => <span key={v.id}>{v.title}</span>)}
-              </div>
-            </div>
+          <section className="build-cta-row">
             <button className="btn-accent" onClick={generatePlan}>
-              Build with Gemini ✦
+              Build itinerary
             </button>
           </section>
         </main>
@@ -708,9 +697,9 @@ function App() {
       {step === "apiError" && (
         <main className="screen loading-screen on">
           <div className="api-error-card">
-            <p className="label">Gemini API needs attention</p>
-            <h2>Couldn't generate the live itinerary.</h2>
-            <p>{error}</p>
+            <p className="label">Travel DNA preview</p>
+            <h2>Live planning is taking a short pause.</h2>
+            <p>The prototype could not finish a fresh plan right now. Review your setup or try again in a moment.</p>
             <div className="error-actions">
               <button className="btn-outline" onClick={() => setStep("setup")}>
                 Edit setup
@@ -732,19 +721,14 @@ function App() {
               <span className="res-tag">{travelArchetype.name}</span>
               <h2>{itinerary?.destination || destination}</h2>
               <p>{itinerary?.dates || prettyDate(date)}</p>
-              <div className="res-dna-strip">
-                {selectedMoodObjects.map((mood) => (
-                  <span key={mood.id}>Today: {mood.title}</span>
-                ))}
-              </div>
               <p className="archetype-line">{travelArchetype.line}</p>
               {itinerary?.summary && <p className="res-summary">{itinerary.summary}</p>}
               {itinerary?.generatedBy === "fallback" && (
                 <div className="fallback-banner">
-                  <span>Demo fallback</span>
+                  <span>Preview mode</span>
                   <p>
-                    Gemini free-tier credits are limited, so Travel DNA generated this
-                    preview locally while still attempting to enrich places with Google Places.
+                    Live planning is temporarily capped, so Travel DNA is showing
+                    a designed preview while place details continue to enrich.
                   </p>
                   <button type="button" onClick={() => setShowSubscribe(true)}>
                     Like this idea? Get updates
@@ -758,14 +742,11 @@ function App() {
             <button className="btn-outline" onClick={() => setStep("setup")}>
               Edit setup
             </button>
-            <button className="btn-outline" onClick={() => setStep("mood")}>
-              Change mood
-            </button>
-            <button className="btn-accent" onClick={generatePlan}>
-              Regenerate ✦
+            <button className="btn-outline" onClick={generatePlan}>
+              Regenerate
             </button>
             {tripMapsUrl && (
-              <a className="btn-outline maps-trip-btn" href={tripMapsUrl} target="_blank" rel="noreferrer">
+              <a className="btn-accent maps-trip-btn" href={tripMapsUrl} target="_blank" rel="noreferrer">
                 Open trip in Google Maps
               </a>
             )}
@@ -2412,6 +2393,413 @@ input[type="date"] {
     font-size: 26px;
   }
 }
+
+/* ===== LIGHT MODE V3 FINAL: grey / white / black + restrained premium gold ===== */
+:root {
+  --bg: #ECEAE3;
+  --page: #ECEAE3;
+  --panel: #E2E0D8;
+  --panel-2: #DAD8D0;
+  --panel-3: #F4F3EE;
+  --ink: #080808;
+  --ink-2: #3E3E3A;
+  --ink-3: #8A897F;
+  --line: rgba(0,0,0,.10);
+  --line-strong: rgba(0,0,0,.16);
+  --gold: #BFA052;
+  --gold-soft: rgba(191,160,82,.14);
+  --gold-line: rgba(191,160,82,.30);
+}
+
+html, body, #root { background: var(--bg) !important; }
+body, .app-shell { color: var(--ink) !important; }
+.app-shell { background: var(--bg) !important; cursor: default !important; }
+.stars, .aurora { display: none !important; }
+
+/* sticky translucent grain nav */
+.navbar {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 999 !important;
+  width: 100% !important;
+  height: 72px !important;
+  margin: 0 !important;
+  padding: 0 clamp(24px, 4vw, 56px) !important;
+  border-radius: 0 !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(0,0,0,.10) !important;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255,255,255,.55), transparent 34%),
+    linear-gradient(180deg, rgba(236,234,227,.84), rgba(236,234,227,.70)) !important;
+  backdrop-filter: blur(22px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(150%) !important;
+  box-shadow: none !important;
+}
+.navbar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: .08;
+  pointer-events: none;
+  background-image: radial-gradient(circle at 1px 1px, #000 1px, transparent 0);
+  background-size: 10px 10px;
+  mix-blend-mode: multiply;
+}
+.nav-steps, .nav-actions { position: relative; z-index: 1; }
+.nav-steps { gap: 24px !important; }
+.nav-steps i, .hero-pill .pulse { display: none !important; }
+.nav-steps button {
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: rgba(0,0,0,.48) !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  box-shadow: none !important;
+}
+.nav-steps button:hover:not(:disabled) { background: transparent !important; color: rgba(0,0,0,.74) !important; }
+.nav-steps button.active { background: transparent !important; color: var(--ink) !important; }
+.nav-steps button.done { color: rgba(0,0,0,.55) !important; }
+
+/* typography */
+h1 { font-size: clamp(46px, 6.2vw, 82px) !important; letter-spacing: -.06em !important; }
+h1, h1 span, h2, h3, h4, .gem, .res-content h2, .s-body h3, .s-body h4 {
+  color: var(--ink) !important;
+  background: none !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: none !important;
+  animation: none !important;
+}
+.hero-left > p {
+  max-width: 760px !important;
+  font-size: clamp(22px, 2.35vw, 36px) !important;
+  line-height: 1.38 !important;
+  letter-spacing: -.035em !important;
+  color: var(--ink-2) !important;
+}
+p, .subcopy, .res-summary, .s-body p, .s-body small { color: var(--ink-2) !important; }
+.label, .field-label, .s-cat { color: var(--ink-3) !important; }
+
+/* buttons */
+.btn-accent, .nav-subscribe, .primary-wide, .build-cta-row .btn-accent, .bottom-cta .btn-accent,
+.action-bar .btn-accent, .maps-trip-btn.btn-accent {
+  min-height: 50px !important;
+  padding: 0 26px !important;
+  border-radius: 999px !important;
+  background: var(--ink) !important;
+  border: 1px solid var(--ink) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.btn-accent:hover, .nav-subscribe:hover, .primary-wide:hover, .build-cta-row .btn-accent:hover,
+.bottom-cta .btn-accent:hover, .action-bar .btn-accent:hover, .maps-trip-btn.btn-accent:hover {
+  background: #000 !important;
+  border-color: #000 !important;
+  color: #fff !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+.btn-outline, .action-bar .btn-outline, .error-actions .btn-outline {
+  min-height: 50px !important;
+  padding: 0 24px !important;
+  border-radius: 999px !important;
+  background: var(--panel-2) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+  box-shadow: none !important;
+}
+.btn-outline:hover, .action-bar .btn-outline:hover, .error-actions .btn-outline:hover {
+  background: var(--panel-3) !important;
+  color: var(--ink) !important;
+  transform: none !important;
+}
+.nav-subscribe {
+  background: transparent !important;
+  border: 1px solid rgba(0,0,0,.16) !important;
+  color: var(--ink) !important;
+  min-height: 42px !important;
+}
+.nav-subscribe:hover { background: var(--panel-2) !important; color: var(--ink) !important; }
+
+/* Google/Gmail connect as gold outline */
+.google-wrap {
+  border: 1px solid var(--gold-line) !important;
+  border-radius: 999px !important;
+  padding: 2px !important;
+  background: transparent !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.google-wrap > div, #googleSignIn, #googleSignIn > div, #googleSignIn iframe { border-radius: 999px !important; }
+
+/* hero pill */
+.hero-pill {
+  background: transparent !important;
+  border: 1px solid rgba(0,0,0,.16) !important;
+  border-radius: 999px !important;
+  padding: 9px 15px !important;
+  box-shadow: none !important;
+}
+.hero-pill span { color: var(--ink-3) !important; }
+
+/* hero showreel */
+.hero-cards.itinerary-showreel {
+  height: 520px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.showreel-frame {
+  width: min(560px, 100%) !important;
+  height: 460px !important;
+  margin: 0 auto !important;
+  border-radius: 34px !important;
+  border: 1px solid var(--line-strong) !important;
+  box-shadow: none !important;
+  background: var(--panel) !important;
+}
+.showreel-copy, .generation-chip, .preview-progress, .preview-progress::before, .preview-progress::after {
+  display: none !important;
+}
+.showreel-overlay {
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.48)),
+    linear-gradient(90deg, rgba(0,0,0,.26), rgba(0,0,0,.04)) !important;
+}
+.itinerary-lines { left: 24px !important; right: 24px !important; bottom: 28px !important; }
+.itinerary-line {
+  min-height: 54px !important;
+  grid-template-columns: 72px 1fr !important;
+  border-radius: 18px !important;
+  background: rgba(244,243,238,.90) !important;
+  border: 1px solid rgba(255,255,255,.62) !important;
+  box-shadow: none !important;
+}
+.itinerary-line b, .itinerary-line span { color: var(--ink) !important; }
+
+/* setup screen: keep only question cards */
+.glass-panel, .form-shell, .api-error-card, .load-glass, .subscribe-modal {
+  background: var(--panel) !important;
+  border: 1px solid var(--line-strong) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  border-radius: 28px !important;
+}
+.form-shell {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  max-width: 880px !important;
+}
+.form-shell label, .field-block, .pi-card {
+  background: var(--panel) !important;
+  border: 1px solid var(--line-strong) !important;
+  border-radius: 24px !important;
+  padding: 24px !important;
+}
+input {
+  background: var(--panel-2) !important;
+  border: 1px solid var(--line-strong) !important;
+  color: var(--ink) !important;
+  border-radius: 18px !important;
+  box-shadow: none !important;
+}
+input:focus { background: var(--panel-3) !important; border-color: rgba(0,0,0,.26) !important; }
+.suggestion, .chip {
+  background: var(--panel-2) !important;
+  border: 1px solid var(--line-strong) !important;
+  color: var(--ink-2) !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+}
+.suggestion.active, .chip.active { background: var(--ink) !important; border-color: var(--ink) !important; color: #fff !important; }
+.autocomplete-suggestions .suggestion span { display: none !important; }
+
+/* mood */
+.mood-header h2 { font-size: clamp(42px, 5.6vw, 76px) !important; }
+.mood-header .gem { color: var(--ink) !important; }
+.image-mood-tile {
+  border-radius: 28px !important;
+  border: 1px solid var(--line-strong) !important;
+  box-shadow: none !important;
+}
+.image-mood-tile.active {
+  border-color: var(--ink) !important;
+  box-shadow: inset 0 0 0 2px var(--ink) !important;
+}
+.image-mood-tile:hover { transform: none !important; }
+.bottom-cta.glass-panel, .build-cta-row {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 34px 0 0 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  box-shadow: none !important;
+}
+.bottom-cta.glass-panel > div:first-child, .selected-chips, .profile-chip { display: none !important; }
+.bottom-cta .btn-accent, .build-cta-row .btn-accent { min-width: 220px !important; }
+
+/* loading visualization */
+.loading-screen { background: var(--bg) !important; }
+.loader-layout { width: min(980px, 100%) !important; gap: 34px !important; }
+.constellation { width: min(560px, 84vw) !important; height: 280px !important; }
+.constellation .halo { display: none !important; }
+.constellation .seg { stroke-width: 5 !important; filter: none !important; }
+.blue-stroke, .green-stroke, .red-stroke { stroke: var(--ink) !important; }
+.yellow-stroke { stroke: var(--gold) !important; }
+.constellation .blue, .constellation .green, .constellation .red { fill: var(--ink) !important; }
+.constellation .yellow { fill: var(--gold) !important; }
+.loading-copy { position: relative !important; }
+.loading-copy::before, .loading-copy::after {
+  position: absolute;
+  top: -42px;
+  border-radius: 999px;
+  padding: 8px 14px;
+  background: var(--panel-2);
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 900;
+  animation: floatChip 3.4s ease-in-out infinite;
+}
+.loading-copy::before { content: "Places"; left: -80px; }
+.loading-copy::after { content: "Diet"; right: -88px; animation-delay: .8s; }
+@keyframes floatChip {
+  0%, 100% { transform: translateY(0); opacity: .72; }
+  50% { transform: translateY(-10px); opacity: 1; }
+}
+.load-glass {
+  background: transparent !important;
+  border: 0 !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  padding: 0 !important;
+}
+.load-row {
+  background: var(--panel) !important;
+  border: 1px solid var(--line-strong) !important;
+  border-radius: 18px !important;
+  padding: 15px 16px !important;
+  opacity: 1 !important;
+  color: var(--ink-2) !important;
+}
+.load-row b { border: 0 !important; background: var(--panel-2) !important; }
+.load-row.on b { background: var(--ink) !important; }
+.load-row em { color: var(--ink-3) !important; }
+.load-row.on em { color: var(--ink) !important; }
+
+/* result */
+.result-screen {
+  max-width: 1280px !important;
+  width: 100% !important;
+  padding: 48px clamp(28px, 6vw, 80px) 80px !important;
+}
+.res-hero {
+  min-height: 520px !important;
+  border-radius: 34px !important;
+  border: 1px solid var(--line-strong) !important;
+  box-shadow: none !important;
+}
+.res-content h2 { color: #fff !important; font-size: clamp(48px, 6vw, 84px) !important; }
+.res-dna-strip { display: none !important; }
+.archetype-line { color: var(--gold) !important; font-weight: 800 !important; }
+.res-summary { color: rgba(255,255,255,.72) !important; }
+.res-tag {
+  background: rgba(255,255,255,.14) !important;
+  border: 1px solid rgba(255,255,255,.22) !important;
+  color: #fff !important;
+}
+.action-bar {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 24px 0 52px !important;
+  box-shadow: none !important;
+  display: flex !important;
+  gap: 12px !important;
+}
+.action-bar .btn-accent, .action-bar .maps-trip-btn {
+  background: var(--ink) !important;
+  color: #fff !important;
+  border-color: var(--ink) !important;
+}
+.action-bar .btn-outline {
+  background: var(--panel-2) !important;
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+
+/* timeline location icon */
+.s-pin, .s-pin.featured {
+  border-radius: 999px !important;
+  background: var(--panel-2) !important;
+  border: 1px solid var(--line-strong) !important;
+  color: transparent !important;
+  position: relative !important;
+}
+.s-pin::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--ink);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  display: block;
+}
+.s-pin::after {
+  content: "";
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--ink);
+  top: 11px;
+  left: 12px;
+}
+.s-pin.featured { background: var(--gold) !important; border-color: var(--gold) !important; }
+.s-photo {
+  border-radius: 24px !important;
+  box-shadow: none !important;
+  border: 1px solid var(--line-strong) !important;
+}
+.s-photo:hover img { transform: none !important; }
+.place-meta .rating-pill {
+  color: var(--gold) !important;
+  border-color: var(--gold-line) !important;
+  background: var(--gold-soft) !important;
+}
+
+.modal-backdrop {
+  background: rgba(120,120,114,.66) !important;
+  backdrop-filter: blur(8px) !important;
+}
+.subscribe-modal { background: var(--panel-3) !important; }
+
+@media(max-width: 900px) {
+  .hero-inner { grid-template-columns: 1fr !important; }
+  .load-glass { grid-template-columns: 1fr !important; }
+}
+@media(max-width: 760px) {
+  .navbar {
+    height: auto !important;
+    min-height: 66px !important;
+    padding: 10px 16px !important;
+    gap: 12px !important;
+  }
+  .nav-steps { gap: 14px !important; overflow-x: auto !important; }
+  .hero-left > p { font-size: 22px !important; }
+  .showreel-frame { height: 410px !important; width: 100% !important; }
+  .action-bar, .bottom-cta.glass-panel, .build-cta-row { width: 100% !important; }
+  .action-bar button, .action-bar a, .bottom-cta .btn-accent, .build-cta-row .btn-accent {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+
 `;
 
 createRoot(document.getElementById("root")).render(<App />);
