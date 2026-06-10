@@ -83,6 +83,33 @@ const moodVibes = [
   { id: "romantic", title: "Romantic", tag: "Intentional, slow", signal: "golden hour, lanterns, views, beautiful dinner, partner-friendly", icon: "♡", img: "https://images.pexels.com/photos/1024960/pexels-photo-1024960.jpeg?auto=compress&cs=tinysrgb&w=1400" }
 ];
 
+function PlacesCarousel({ moods, places }) {
+  const [idx, setIdx] = React.useState(0);
+  React.useEffect(() => {
+    const t = setInterval(() => setIdx(i => (i + 1) % moods.length), 1800);
+    return () => clearInterval(t);
+  }, [moods.length]);
+  const mood = moods[idx];
+  const place = places[idx];
+  return (
+    <div className="places-carousel">
+      {moods.map((m, i) => (
+        <div key={m.id + i} className={`pc-slide${i === idx ? " pc-active" : i === (idx - 1 + moods.length) % moods.length ? " pc-prev" : ""}`}>
+          <img src={m.img} alt="" />
+          <div className="pc-ov"/>
+          <div className="pc-meta">
+            <span className="pc-name">{place?.name || m.title}</span>
+            <span className="pc-rating">★ {(4.1 + i * 0.15).toFixed(1)}</span>
+          </div>
+        </div>
+      ))}
+      <div className="pc-dots">
+        {moods.map((_, i) => <span key={i} className={`pc-dot${i === idx ? " pc-dot-active" : ""}`}/>)}
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [user, setUser] = useState(null);
   const [step, setStep] = useState("login");
@@ -205,7 +232,7 @@ function App() {
 
     // Step the loader forward every 2.4s, but clamp at step 4 (wireframe)
     // so it stays on the wireframe until Gemini resolves
-    const CLAMP_AT = 4; // wireframe shows at step 4 and holds
+    const CLAMP_AT = 5; // wireframe shows at step 5 and holds
     const interval = setInterval(() => {
       setLoadingLine((v) => Math.min(v + 1, CLAMP_AT));
     }, 2400);
@@ -248,9 +275,6 @@ function App() {
       const data = await res.json();
       if (!res.ok || data?.error) throw new Error(data?.error || "Gemini API route failed");
       clearInterval(interval);
-      // Step quickly through remaining items to show completion
-      setLoadingLine(5);
-      await new Promise(r => setTimeout(r, 600));
       setLoadingLine(6);
       setItinerary(data);
       setTimeout(() => goTo("result"), 800);
@@ -396,8 +420,8 @@ function App() {
           {/* Visual stage — driven by loadingLine (0-6) */}
           <div className="loader-stage">
 
-            {/* Stage 0: Quick feeler profile — profile pic with spinning ring */}
-            <div className={`ls${loadingLine === 0 ? " ls-active" : loadingLine > 0 ? " ls-done" : ""}`}>
+            {/* ll=0: profile ring */}
+            <div className={`ls${loadingLine === 0 ? " ls-active" : " ls-done"}`}>
               <div className="ls-profile">
                 <div className="profile-ring-wrap">
                   <svg className="profile-ring-svg" viewBox="0 0 120 120">
@@ -416,8 +440,8 @@ function App() {
               </div>
             </div>
 
-            {/* Stage 1–2: Mood signals + dietary — cards shuffle, pills sort */}
-            <div className={`ls${loadingLine === 1 || loadingLine === 2 ? " ls-active" : loadingLine > 2 ? " ls-done" : ""}`}>
+            {/* ll=1: mood cards + pills */}
+            <div className={`ls${loadingLine === 1 ? " ls-active" : loadingLine > 1 ? " ls-done" : ""}`}>
               <div className="ls-moods">
                 {selectedMoodObjects.concat(moodVibes).slice(0, 3).map((mood, i) => (
                   <div className={`lcard lcard-${i}`} key={mood.id + i}>
@@ -434,20 +458,36 @@ function App() {
               </div>
             </div>
 
-            {/* Stage 3: Destination context — map sketch with dots */}
-            <div className={`ls${loadingLine === 2 || loadingLine === 3 ? " ls-active" : loadingLine > 3 ? " ls-done" : ""}`}>
+            {/* ll=2: dietary — same visual as moods */}
+            <div className={`ls${loadingLine === 2 ? " ls-active" : loadingLine > 2 ? " ls-done" : ""}`}>
+              <div className="ls-moods">
+                {selectedMoodObjects.concat(moodVibes).slice(0, 3).map((mood, i) => (
+                  <div className={`lcard lcard-${i}`} key={"d"+mood.id+i}>
+                    <img src={mood.img} alt="" />
+                    <div className="lcard-ov" />
+                    <span className="lcard-lbl">{mood.title}</span>
+                  </div>
+                ))}
+                <div className="lspills">
+                  {[diet, planFor, ...selectedMoodObjects.map(m => m.title)].filter(Boolean).map((label, i) => (
+                    <span className={`lspill lspill-${i}`} key={"d"+label}>{label}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* ll=3: destination map */}
+            <div className={`ls${loadingLine === 3 ? " ls-active" : loadingLine > 3 ? " ls-done" : ""}`}>
               <div className="ls-map">
                 <div className="map-dest-label">{destination}</div>
                 <div className="map-sketch">
                   <svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg" className="map-svg">
-                    {/* Sketchy map path lines */}
                     <path d="M 40 80 Q 80 60 120 90 T 200 70 T 280 95 T 360 75" className="map-path mp1"/>
                     <path d="M 60 120 Q 110 100 160 125 T 250 108 T 340 118" className="map-path mp2"/>
                     <path d="M 80 150 Q 140 135 200 155 T 320 145" className="map-path mp3"/>
                     <path d="M 100 50 L 100 170" className="map-path mp4"/>
                     <path d="M 200 40 L 200 175" className="map-path mp5"/>
                     <path d="M 300 55 L 300 168" className="map-path mp6"/>
-                    {/* Animated map dots */}
                     <circle className="map-dot md1" cx="120" cy="88" r="6"/>
                     <circle className="map-dot md2" cx="200" cy="70" r="6"/>
                     <circle className="map-dot md3" cx="300" cy="95" r="6"/>
@@ -458,27 +498,13 @@ function App() {
               </div>
             </div>
 
-            {/* Stage 4: Google Places — real place photo cards sliding in */}
-            <div className={`ls${loadingLine === 3 || loadingLine === 4 ? " ls-active" : loadingLine > 4 ? " ls-done" : ""}`}>
-              <div className="ls-photos">
-                {selectedMoodObjects.concat(moodVibes).slice(0, 5).map((mood, i) => {
-                  const place = placesPhotos[i];
-                  return (
-                    <div className={`photo-card pc-${i}`} key={mood.id + i}>
-                      <img src={mood.img} alt="" />
-                      <div className="photo-card-ov"/>
-                      <div className="photo-card-meta">
-                        {place && <span className="photo-place-name">{place.name}</span>}
-                        <span className="photo-rating">★ {(4.1 + i * 0.15).toFixed(1)}</span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+            {/* ll=4: places carousel — one photo at a time */}
+            <div className={`ls${loadingLine === 4 ? " ls-active" : loadingLine > 4 ? " ls-done" : ""}`}>
+              <PlacesCarousel moods={selectedMoodObjects.concat(moodVibes).slice(0,5)} places={placesPhotos} />
             </div>
 
-            {/* Stage 5–6: Gemini itinerary wireframe — stays until API resolves */}
-            <div className={`ls${loadingLine >= 4 ? " ls-active" : ""}`} style={{opacity: loadingLine >= 4 ? 1 : 0}}>
+            {/* ll=5+: wireframe — holds until Gemini resolves */}
+            <div className={`ls${loadingLine >= 5 ? " ls-active" : ""}`}>
               <div className="wire-frame">
                 <div className="wire-hero"/>
                 <div className="wire-meta">
@@ -491,10 +517,10 @@ function App() {
                     <div className="wire-stop" key={i}>
                       <div className="wire-dot"/>
                       <div className="wire-lines">
-                        <div className="wire-line wl-a" style={{animationDelay: `${i*0.2}s`}}/>
-                        <div className="wire-line wl-b" style={{animationDelay: `${i*0.2+0.1}s`}}/>
+                        <div className="wire-line wl-a" style={{animationDelay:`${i*0.2}s`}}/>
+                        <div className="wire-line wl-b" style={{animationDelay:`${i*0.2+0.1}s`}}/>
                       </div>
-                      <div className="wire-img" style={{animationDelay: `${i*0.15}s`}}/>
+                      <div className="wire-img" style={{animationDelay:`${i*0.15}s`}}/>
                     </div>
                   ))}
                 </div>
@@ -762,7 +788,7 @@ p { font-size: 16px; line-height: 1.72; color: var(--ink-2); }
 .hero-left { display: flex; flex-direction: column; gap: 28px; }
 .hero-pill { display: inline-flex; align-items: center; gap: 0; background: none; border: none; padding: 0; }
 .pulse { display: none; }
-.hero-pill span { font-size: 13px; font-weight: 400; color: var(--ink-3); letter-spacing: 0; text-transform: none; }
+.hero-pill span { font-size: 11px; font-weight: 700; color: var(--ink-3); letter-spacing: .1em; text-transform: uppercase; }
 .hero-left > p { max-width: 620px; font-size: clamp(17px,1.35vw,20px); line-height: 1.6; color: var(--ink-2); }
 .hero-cta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .google-wrap { min-height: 44px; display: inline-flex; align-items: center; border-radius: 999px; overflow: hidden; background: transparent; border: none; }
@@ -790,7 +816,7 @@ p { font-size: 16px; line-height: 1.72; color: var(--ink-2); }
 .itinerary-line b { color: var(--accent) !important; font-weight: 800; }
 
 /* ── SETUP ── */
-.setup-header, .mood-header { margin-bottom: 30px; max-width: 640px; }
+.setup-header, .mood-header { margin-bottom: 30px; max-width: 540px; }
 .form-shell { max-width: 640px; border-radius: 0; background: transparent !important; border: 0 !important; padding: 0 !important; display: grid; gap: 28px; }
 label { display: grid; gap: 14px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
 input { width: 100%; background: var(--panel-2); border: 1px solid var(--line-strong); border-radius: 24px; min-height: 64px; padding: 0 24px; font-size: 15px; font-weight: 500; color: var(--ink); outline: none; transition: border-color .15s, background .15s; }
@@ -844,6 +870,10 @@ input[type="date"] { color-scheme: light; }
   width: min(520px, 100%);
   height: 260px;
   flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
 }
 
 /* Each .ls is a visual stage — hidden by default, pure dissolve */
@@ -852,6 +882,7 @@ input[type="date"] { color-scheme: light; }
   display: flex; align-items: center; justify-content: center;
   opacity: 0; pointer-events: none;
   transition: opacity .6s var(--ease);
+  overflow: hidden;
 }
 .ls.ls-active {
   opacity: 1; pointer-events: auto;
@@ -896,7 +927,7 @@ input[type="date"] { color-scheme: light; }
 .profile-email { font-size: 12px; color: var(--ink-3); margin: 3px 0 0; }
 
 /* ── STAGE 1–2: Mood cards + pills ── */
-.ls-moods { position: relative; width: 100%; height: 100%; }
+.ls-moods { position: relative; width: 100%; height: 100%; overflow: hidden; }
 .lcard {
   position: absolute; border-radius: 18px; overflow: hidden;
   border: 1px solid var(--line-strong);
@@ -982,27 +1013,40 @@ input[type="date"] { color-scheme: light; }
   100%{ opacity:1; transform:scale(1); }
 }
 
-/* ── STAGE 4: Photo cards (Google Places) ── */
-.ls-photos { position: relative; width: 100%; height: 100%; }
-.photo-card {
-  position: absolute; border-radius: 14px; overflow: hidden;
-  border: 1px solid var(--line-strong); opacity: 0;
-  animation: photoSlide .5s var(--ease) forwards;
+/* ── STAGE 4: Places carousel ── */
+.places-carousel {
+  position: relative;
+  width: min(340px, 100%);
+  height: 220px;
+  overflow: hidden;
+  border-radius: 18px;
 }
-.pc-0 { width:130px; height:90px;  left:0;    top:10px;  animation-delay:.05s; }
-.pc-1 { width:110px; height:80px;  left:140px;top:0;     animation-delay:.15s; }
-.pc-2 { width:125px; height:95px;  right:0;   top:14px;  animation-delay:.25s; }
-.pc-3 { width:115px; height:78px;  left:60px; bottom:0;  animation-delay:.35s; }
-.pc-4 { width:120px; height:82px;  right:60px;bottom:4px;animation-delay:.45s; }
-@keyframes photoSlide {
-  0%   { opacity:0; transform:translateY(16px) scale(.92); }
-  100% { opacity:1; transform:translateY(0) scale(1); }
+.pc-slide {
+  position: absolute; inset: 0;
+  border-radius: 18px; overflow: hidden;
+  border: 1px solid var(--line-strong);
+  opacity: 0;
+  transition: opacity .5s var(--ease);
 }
-.photo-card img { width:100%; height:100%; object-fit:cover; filter:brightness(.72) saturate(.9); }
-.photo-card-ov { position:absolute; inset:0; background:linear-gradient(to top,rgba(0,0,0,.6),transparent 55%); }
-.photo-card-meta { position:absolute; bottom:8px; left:10px; right:8px; display:flex; flex-direction:column; gap:2px; }
-.photo-place-name { font-size:10px; font-weight:700; color:rgba(255,255,255,.85); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.photo-rating { font-size:10px; font-weight:800; color:var(--accent); }
+.pc-slide.pc-active { opacity: 1; z-index: 2; }
+.pc-slide.pc-prev   { opacity: 0; z-index: 1; }
+.pc-slide img { width:100%; height:100%; object-fit:cover; filter:brightness(.6) saturate(.8); }
+.pc-ov { position:absolute; inset:0; background:linear-gradient(to top,rgba(0,0,0,.7),transparent 50%); }
+.pc-meta {
+  position: absolute; bottom: 14px; left: 16px; right: 16px;
+  display: flex; align-items: flex-end; justify-content: space-between;
+}
+.pc-name { font-size: 15px; font-weight: 800; color: #fff; letter-spacing: -.02em; max-width: 75%; }
+.pc-rating { font-size: 12px; font-weight: 800; color: var(--accent); white-space: nowrap; }
+.pc-dots {
+  position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 5px;
+}
+.pc-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--surface-3); transition: background .3s;
+}
+.pc-dot.pc-dot-active { background: var(--ink); }
 
 /* ── STAGE 6: Wireframe ── */
 .wire-frame {
