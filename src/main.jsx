@@ -94,6 +94,7 @@ function App() {
   const [planFor, setPlanFor] = useState("Date");
   const [selectedMoods, setSelectedMoods] = useState(["active", "romantic"]);
   const [loadingLine, setLoadingLine] = useState(0);
+  const [placesPhotos, setPlacesPhotos] = useState([]);
   const [itinerary, setItinerary] = useState(null);
   const [googleReady, setGoogleReady] = useState(false);
   const [error, setError] = useState("");
@@ -200,24 +201,64 @@ function App() {
     setError("");
     setLoadingLine(0);
     setItinerary(null);
-    const interval = setInterval(() => { setLoadingLine((v) => Math.min(v + 1, loadingItems.length - 2)); }, 2200);
+    setPlacesPhotos([]);
+
+    // Step the loader forward every 2.4s, but clamp at step 4 (wireframe)
+    // so it stays on the wireframe until Gemini resolves
+    const CLAMP_AT = 4; // wireframe shows at step 4 and holds
+    const interval = setInterval(() => {
+      setLoadingLine((v) => Math.min(v + 1, CLAMP_AT));
+    }, 2400);
+
+    // Fetch Google Places photos for the destination in parallel
+    const fetchPlaces = async () => {
+      try {
+        const res = await fetch(`/api/place-autocomplete?input=${encodeURIComponent(destination)}`);
+        const data = await res.json();
+        // Use suggestions to build photo queries, then fetch place photos
+        const queries = (data.suggestions || []).slice(0, 5).map(s => s.label || s);
+        // Fetch a Places text search for each to get photos
+        const photos = await Promise.all(
+          [destination, ...selectedMoodObjects.map(m => `${destination} ${m.title}`)].slice(0, 5).map(async (q) => {
+            try {
+              const r = await fetch(`/api/place-autocomplete?input=${encodeURIComponent(q)}`);
+              const d = await r.json();
+              const first = (d.suggestions || [])[0];
+              return first ? { name: first.label || first, placeId: first.placeId } : null;
+            } catch { return null; }
+          })
+        );
+        setPlacesPhotos(photos.filter(Boolean));
+      } catch (e) {
+        // silently fail — mood images will be used as fallback
+      }
+    };
+
+    // Fire Gemini and places fetch in parallel
+    const geminiPromise = fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user, destination, dates: prettyDate(date), date, diet, travelWith: planFor, selectedMoods: selectedMoodObjects, instruction: "Create a real, specific, mood-first day plan. Infer longer-term travel style lightly from Google profile if available, but do not ask the user to select it. Use selectedMoods as today's short-term intent. Return concrete places. The server will enrich stops with Google Places photos, ratings, addresses, and map links." })
+    });
+
+    fetchPlaces(); // fire and don't await
+
     try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user, destination, dates: prettyDate(date), date, diet, travelWith: planFor, selectedMoods: selectedMoodObjects, instruction: "Create a real, specific, mood-first day plan. Infer longer-term travel style lightly from Google profile if available, but do not ask the user to select it. Use selectedMoods as today's short-term intent. Return concrete places. The server will enrich stops with Google Places photos, ratings, addresses, and map links." })
-      });
+      const res = await geminiPromise;
       const data = await res.json();
       if (!res.ok || data?.error) throw new Error(data?.error || "Gemini API route failed");
-      setLoadingLine(loadingItems.length - 1);
+      clearInterval(interval);
+      // Step quickly through remaining items to show completion
+      setLoadingLine(5);
+      await new Promise(r => setTimeout(r, 600));
+      setLoadingLine(6);
       setItinerary(data);
-      setTimeout(() => goTo("result"), 450);
+      setTimeout(() => goTo("result"), 800);
     } catch (err) {
+      clearInterval(interval);
       console.error(err);
       setError(err.message || "Gemini could not generate the plan.");
       goTo("apiError");
-    } finally {
-      clearInterval(interval);
     }
   }
 
@@ -395,7 +436,7 @@ function App() {
             </div>
 
             {/* Stage 3: Destination context — map sketch with dots */}
-            <div className={`ls${loadingLine === 3 ? " ls-active" : loadingLine > 3 ? " ls-done" : ""}`}>
+            <div className={`ls${loadingLine === 2 || loadingLine === 3 ? " ls-active" : loadingLine > 3 ? " ls-done" : ""}`}>
               <div className="ls-map">
                 <div className="map-dest-label">{destination}</div>
                 <div className="map-sketch">
@@ -418,36 +459,27 @@ function App() {
               </div>
             </div>
 
-            {/* Stage 4: Google Places — map dots expand into photos */}
-            <div className={`ls${loadingLine === 4 ? " ls-active" : loadingLine > 4 ? " ls-done" : ""}`}>
-              <div className="ls-places">
-                {selectedMoodObjects.concat(moodVibes).slice(0, 4).map((mood, i) => (
-                  <div className={`place-bubble pb-${i}`} key={mood.id + i}>
-                    <img src={mood.img} alt="" />
-                    <div className="pb-ov"/>
-                    <span className="pb-rating">★ {(4.2 + i * 0.2).toFixed(1)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Stage 5: Real photos — same bubbles with ratings */}
-            <div className={`ls${loadingLine === 5 ? " ls-active" : loadingLine > 5 ? " ls-done" : ""}`}>
+            {/* Stage 4: Google Places — real place photo cards sliding in */}
+            <div className={`ls${loadingLine === 3 || loadingLine === 4 ? " ls-active" : loadingLine > 4 ? " ls-done" : ""}`}>
               <div className="ls-photos">
-                {selectedMoodObjects.concat(moodVibes).slice(0, 5).map((mood, i) => (
-                  <div className={`photo-card pc-${i}`} key={mood.id + i}>
-                    <img src={mood.img} alt="" />
-                    <div className="photo-card-ov"/>
-                    <div className="photo-card-meta">
-                      <span className="photo-rating">★ {(4.1 + i * 0.15).toFixed(1)}</span>
+                {selectedMoodObjects.concat(moodVibes).slice(0, 5).map((mood, i) => {
+                  const place = placesPhotos[i];
+                  return (
+                    <div className={`photo-card pc-${i}`} key={mood.id + i}>
+                      <img src={mood.img} alt="" />
+                      <div className="photo-card-ov"/>
+                      <div className="photo-card-meta">
+                        {place && <span className="photo-place-name">{place.name}</span>}
+                        <span className="photo-rating">★ {(4.1 + i * 0.15).toFixed(1)}</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
-            {/* Stage 6: Gemini itinerary wireframe */}
-            <div className={`ls${loadingLine === 6 ? " ls-active" : ""}`}>
+            {/* Stage 5–6: Gemini itinerary wireframe — stays until API resolves */}
+            <div className={`ls${loadingLine >= 4 ? " ls-active" : ""}`} style={{opacity: loadingLine >= 4 ? 1 : 0}}>
               <div className="wire-frame">
                 <div className="wire-hero"/>
                 <div className="wire-meta">
@@ -951,42 +983,7 @@ input[type="date"] { color-scheme: light; }
   100%{ opacity:1; transform:scale(1); }
 }
 
-/* ── STAGE 4: Places bubbles ── */
-.ls-places { position: relative; width: 100%; height: 100%; }
-.place-bubble {
-  position: absolute; border-radius: 50%; overflow: hidden;
-  border: 2px solid var(--bg); opacity: 0;
-  animation: bubbleIn .5s var(--ease) forwards;
-}
-.pb-0 { width: 100px; height: 100px; left: 40px;  top: 50%; transform: translateY(-50%); animation-delay: .1s; }
-.pb-1 { width: 120px; height: 120px; left: 50%;   top: 50%; transform: translate(-50%,-50%); animation-delay: .3s; }
-.pb-2 { width: 95px;  height: 95px;  right: 40px; top: 50%; transform: translateY(-50%); animation-delay: .5s; }
-.pb-3 { width: 70px;  height: 70px;  left: 155px; top: 20px; animation-delay: .7s; }
-@keyframes bubbleIn {
-  0% { opacity:0; transform:translateY(-50%) scale(0); }
-  70%{ opacity:1; transform:translateY(-50%) scale(1.08); }
-  100%{ opacity:1; transform:translateY(-50%) scale(1); }
-}
-.pb-1 { animation-name: bubbleInCenter; }
-@keyframes bubbleInCenter {
-  0% { opacity:0; transform:translate(-50%,-50%) scale(0); }
-  70%{ opacity:1; transform:translate(-50%,-50%) scale(1.08); }
-  100%{ opacity:1; transform:translate(-50%,-50%) scale(1); }
-}
-.pb-3 { animation-name: bubbleInTop; }
-@keyframes bubbleInTop {
-  0% { opacity:0; transform:scale(0); }
-  70%{ opacity:1; transform:scale(1.1); }
-  100%{ opacity:1; transform:scale(1); }
-}
-.place-bubble img { width:100%; height:100%; object-fit:cover; filter:brightness(.7) saturate(.85); }
-.pb-ov { position:absolute; inset:0; background:rgba(0,0,0,.25); }
-.pb-rating {
-  position:absolute; bottom:6px; left:50%; transform:translateX(-50%);
-  font-size:10px; font-weight:800; color:#fff; white-space:nowrap;
-}
-
-/* ── STAGE 5: Photo cards ── */
+/* ── STAGE 4: Photo cards (Google Places) ── */
 .ls-photos { position: relative; width: 100%; height: 100%; }
 .photo-card {
   position: absolute; border-radius: 14px; overflow: hidden;
@@ -1004,8 +1001,9 @@ input[type="date"] { color-scheme: light; }
 }
 .photo-card img { width:100%; height:100%; object-fit:cover; filter:brightness(.72) saturate(.9); }
 .photo-card-ov { position:absolute; inset:0; background:linear-gradient(to top,rgba(0,0,0,.6),transparent 55%); }
-.photo-card-meta { position:absolute; bottom:6px; left:8px; }
-.photo-rating { font-size:10px; font-weight:800; color:#fff; }
+.photo-card-meta { position:absolute; bottom:8px; left:10px; right:8px; display:flex; flex-direction:column; gap:2px; }
+.photo-place-name { font-size:10px; font-weight:700; color:rgba(255,255,255,.85); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.photo-rating { font-size:10px; font-weight:800; color:var(--accent); }
 
 /* ── STAGE 6: Wireframe ── */
 .wire-frame {
