@@ -258,7 +258,6 @@ function App() {
                   <div className="itinerary-line line-2"><b>12:00</b><span>Vegetarian lunch nearby</span></div>
                   <div className="itinerary-line line-3"><b>17:30</b><span>Golden-hour walk</span></div>
                 </div>
-                <div className="generation-chip"><i /><span>Generating plan</span></div>
               </div>
             </div>
           </section>
