@@ -766,6 +766,7 @@ button { cursor: pointer; }
 }
 .btn-accent:hover { opacity: .88; }
 .btn-accent:active { transform: scale(.98); }
+.btn-accent, .btn-outline { text-decoration: none !important; }
 .nav-subscribe { min-height: 42px !important; padding: 0 16px !important; font-size: 12px; background: var(--ink) !important; border: 1.5px solid var(--ink) !important; color: #fff !important; font-weight: 700 !important; }
 .nav-subscribe:hover { background: #222 !important; border-color: #222 !important; opacity: 1 !important; }
 
@@ -776,8 +777,8 @@ button { cursor: pointer; }
 /* ── TYPE ── */
 .label, .field-label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
 h1, h2 { font-family: 'DM Serif Display', Georgia, serif; color: var(--ink); }
-h1 { font-size: clamp(46px,6.2vw,82px) !important; font-weight: 900; line-height: .92; letter-spacing: -.06em !important; margin: 0; max-width: 840px; }
-h2 { font-size: clamp(36px,4.5vw,60px); font-weight: 900; line-height: .98; letter-spacing: -.04em; margin: 10px 0 10px; }
+h1 { font-size: clamp(46px,6.2vw,82px) !important; font-weight: 400; line-height: 1.05; letter-spacing: -.02em !important; margin: 0; max-width: 840px; }
+h2 { font-size: clamp(36px,4.5vw,60px); font-weight: 400; line-height: 1.1; letter-spacing: -.015em; margin: 10px 0 10px; }
 p { font-size: 16px; line-height: 1.72; color: var(--ink-2); }
 .gem, h1 span { color: var(--accent) !important; background: none !important; -webkit-text-fill-color: currentColor !important; }
 .glass-panel { background: var(--surface); border: 1px solid var(--line-strong); box-shadow: none; }
@@ -795,8 +796,8 @@ p { font-size: 16px; line-height: 1.72; color: var(--ink-2); }
 .google-wrap iframe { border-radius: 999px !important; }
 #googleSignIn, #googleSignIn > div { border-radius: 999px !important; background: transparent !important; }
 .google-loading { color: var(--ink-3); font-size: 13px; font-weight: 700; padding: 0 16px; }
-.hero-cta > .btn-accent { background: var(--panel-3) !important; color: var(--ink) !important; border: 1px solid var(--line-strong) !important; }
-.hero-cta > .btn-accent:hover { background: #fff !important; opacity: 1 !important; }
+.hero-cta > .btn-accent { background: var(--panel-3) !important; color: var(--ink) !important; border: 1.5px solid var(--ink) !important; }
+.hero-cta > .btn-accent:hover { background: var(--ink) !important; color: #fff !important; opacity: 1 !important; }
 
 /* ── SHOWREEL ── */
 .hero-cards.itinerary-showreel { height: 500px !important; display: flex !important; align-items: center; justify-content: center; }
