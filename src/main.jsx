@@ -673,7 +673,7 @@ function Select({ label, value, setValue, options }) {
 }
 
 const css = `
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap');
 
 html, body, #root {
   width: 100%; min-height: 100%;
@@ -702,7 +702,7 @@ html, body, #root {
 }
 
 body {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   background: var(--bg); color: var(--ink);
   overflow-x: hidden; -webkit-font-smoothing: antialiased;
 }
@@ -756,7 +756,7 @@ button { cursor: pointer; }
 .btn-outline {
   display: inline-flex; align-items: center; justify-content: center; gap: 7px;
   min-height: 50px; padding: 0 24px;
-  background: var(--panel-2); border: 1px solid var(--line); color: var(--ink); text-decoration: none;
+  background: var(--panel-2); border: 1.5px solid var(--ink); color: var(--ink); text-decoration: none;
 }
 .btn-outline:hover { background: var(--panel-3); }
 .btn-accent {
@@ -766,7 +766,7 @@ button { cursor: pointer; }
 }
 .btn-accent:hover { opacity: .88; }
 .btn-accent:active { transform: scale(.98); }
-.nav-subscribe { min-height: 42px !important; padding: 0 16px !important; font-size: 12px; background: var(--panel-2) !important; border: 1px solid var(--line) !important; color: var(--ink) !important; font-weight: 700 !important; }
+.nav-subscribe { min-height: 42px !important; padding: 0 16px !important; font-size: 12px; background: var(--panel-2) !important; border: 1.5px solid var(--ink) !important; color: var(--ink) !important; font-weight: 700 !important; }
 .nav-subscribe:hover { background: #fff !important; border-color: rgba(0,0,0,.18) !important; opacity: 1 !important; }
 
 /* ── SCREENS ── */
@@ -775,7 +775,7 @@ button { cursor: pointer; }
 
 /* ── TYPE ── */
 .label, .field-label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
-h1, h2 { font-family: 'Inter', system-ui, sans-serif; color: var(--ink); }
+h1, h2 { font-family: 'DM Serif Display', Georgia, serif; color: var(--ink); }
 h1 { font-size: clamp(46px,6.2vw,82px) !important; font-weight: 900; line-height: .92; letter-spacing: -.06em !important; margin: 0; max-width: 840px; }
 h2 { font-size: clamp(36px,4.5vw,60px); font-weight: 900; line-height: .98; letter-spacing: -.04em; margin: 10px 0 10px; }
 p { font-size: 16px; line-height: 1.72; color: var(--ink-2); }
@@ -824,7 +824,7 @@ input:focus { border-color: rgba(0,0,0,.26); background: var(--panel-3); }
 input::placeholder { color: var(--ink-3); }
 input[type="date"] { color-scheme: light; }
 .suggestions, .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
-.suggestion, .chip { padding: 8px 16px; background: var(--panel-2); border: 1px solid var(--line-strong); border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--ink-2); transition: background .12s, color .12s; }
+.suggestion, .chip { padding: 8px 16px; background: var(--panel-2); border: 1.5px solid var(--ink); border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--ink); transition: background .12s, color .12s; }
 .suggestion:hover, .chip:hover { background: var(--panel-3); color: var(--ink); }
 .suggestion.active, .chip.active { background: var(--panel-3); border-color: rgba(0,0,0,.26); color: var(--ink); font-weight: 800; }
 .autocomplete-loading { display: inline-flex; align-items: center; padding: 8px 12px; color: var(--ink-3); font-size: 12px; font-weight: 700; }
@@ -1084,7 +1084,7 @@ input[type="date"] { color-scheme: light; }
   gap: 24px; width: min(460px, 100%); text-align: center;
 }
 .loader-head { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.loader-headline { font-size: clamp(32px,4vw,48px) !important; font-weight: 900 !important; letter-spacing: -.045em !important; line-height: 1.0 !important; margin: 0 !important; color: var(--ink) !important; }
+.loader-headline { font-family: 'DM Serif Display', Georgia, serif; font-size: clamp(32px,4vw,48px) !important; font-weight: 400 !important; letter-spacing: -.02em !important; line-height: 1.0 !important; margin: 0 !important; color: var(--ink) !important; }
 .loader-sub { font-size: 13px; font-weight: 500; color: var(--ink-3); margin: 0; line-height: 1.4; }
 
 /* List */
