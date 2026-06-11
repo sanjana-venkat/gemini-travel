@@ -392,8 +392,6 @@ function App() {
               <p>We're working on it. Soon, we'll skip these questions with your Google data. For now, give us a quick feeler.</p>
               {user ? (
                 <div className="profile-chip"><img src={user.picture} alt="" />Signed in as {user.name}</div>
-              ) : (
-                <div className="profile-chip">Quick feeler mode</div>
               )}
             </div>
             <button className="btn-accent primary-wide" onClick={() => goTo("mood")}>Choose today's mood</button>
@@ -492,15 +490,31 @@ function App() {
               </div>
             </div>
 
-            {/* ll=4: places carousel — one photo at a time */}
+            {/* ll=4: Google Places candidates — chips only, no images */}
             <div className={`ls${loadingLine === 4 ? " ls-active" : loadingLine > 4 ? " ls-done" : ""}`}>
-              <PlacesCarousel moods={selectedMoodObjects.concat(moodVibes).slice(0,5)} places={placesPhotos} />
+              <div className="ls-places-chips">
+                <p className="places-chips-label">Scanning Google Places for {destination}</p>
+                <div className="places-chips-wrap">
+                  {(placesPhotos.length
+                    ? placesPhotos.map(p => p.name)
+                    : selectedMoodObjects.map(m => `${destination} ${m.title}`)
+                  ).map((name, i) => {
+                    const clean = name.split(",")[0].trim();
+                    const rating = (4.1 + i * 0.15).toFixed(1);
+                    return (
+                      <div className={`place-chip pc-anim-${i}`} key={i}>
+                        <span className="place-chip-name">{clean}</span>
+                        <span className="place-chip-rating">★ {rating}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
 
             {/* ll=5+: wireframe — holds until Gemini resolves */}
             <div className={`ls${loadingLine >= 5 ? " ls-active" : ""}`}>
               <div className="wire-frame">
-                <div className="wire-hero"/>
                 <div className="wire-meta">
                   <div className="wire-tag"/>
                   <div className="wire-title"/>
@@ -821,7 +835,7 @@ input[type="date"] { color-scheme: light; }
 .suggestions, .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
 .suggestion, .chip { padding: 8px 16px; background: transparent; border: 2px solid var(--gold); border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--gold); transition: background .15s, color .15s, border-color .15s; }
 .suggestion:hover, .chip:hover { background: #fff; color: var(--gold); border-color: var(--gold); }
-.suggestion.active, .chip.active { background: #fff; border-color: var(--gold); color: var(--gold); font-weight: 700; }
+.suggestion.active, .chip.active { background: var(--gold); border-color: var(--gold); color: var(--ink); font-weight: 700; }
 .autocomplete-loading { display: inline-flex; align-items: center; padding: 8px 12px; color: var(--ink-3); font-size: 12px; font-weight: 700; }
 .field-block { display: grid; gap: 8px; }
 .pi-card { padding: 24px; border-radius: 24px; background: var(--panel); border: 1px solid var(--line-strong); }
@@ -863,7 +877,7 @@ input[type="date"] { color-scheme: light; }
 .loader-stage {
   position: relative;
   width: min(520px, 100%);
-  height: 260px;
+  height: 240px;
   flex-shrink: 0;
   overflow: hidden;
 }
@@ -1005,7 +1019,37 @@ input[type="date"] { color-scheme: light; }
   100%{ opacity:1; transform:scale(1); }
 }
 
-/* ── STAGE 4: Places carousel ── */
+/* ── STAGE 4: Places chips ── */
+.ls-places-chips {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 16px; width: 100%; padding: 0 8px;
+}
+.places-chips-label {
+  font-size: 11px; font-weight: 700; color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: .08em; margin: 0;
+}
+.places-chips-wrap {
+  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+}
+.place-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 14px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--line-strong);
+  opacity: 0; transform: translateY(10px);
+  animation: chipFadeIn .4s var(--ease) forwards;
+}
+.pc-anim-0 { animation-delay: .1s; }
+.pc-anim-1 { animation-delay: .3s; }
+.pc-anim-2 { animation-delay: .5s; }
+.pc-anim-3 { animation-delay: .7s; }
+.pc-anim-4 { animation-delay: .9s; }
+@keyframes chipFadeIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+.place-chip-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+.place-chip-rating { font-size: 11px; font-weight: 800; color: var(--accent); }
+
+/* ── STAGE 4 old carousel (kept for reference) ── */
 .places-carousel {
   position: relative;
   width: min(340px, 100%);
