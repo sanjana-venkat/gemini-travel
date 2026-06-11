@@ -130,6 +130,7 @@ function App() {
   const [showSubscribe, setShowSubscribe] = useState(false);
   const [subscribeEmail, setSubscribeEmail] = useState("");
   const [subscribeSaved, setSubscribeSaved] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const shellRef = useRef(null);
 
   function goTo(s) {
@@ -284,7 +285,8 @@ function App() {
       <style>{css}</style>
 
       <nav className="navbar">
-        <div className="nav-steps nav-left">
+        {/* Desktop: step pills */}
+        <div className="nav-steps nav-left nav-desktop">
           {[{ label: "Setup", value: "setup" }, { label: "Mood", value: "mood" }, { label: "Result", value: "result" }].map((item, i) => {
             const order = ["setup", "mood", "result"];
             const active = step === item.value;
@@ -297,9 +299,52 @@ function App() {
             );
           })}
         </div>
-        <div className="nav-actions">
+        <div className="nav-actions nav-desktop">
           <button className="btn-accent nav-subscribe" onClick={() => setShowSubscribe(true)}>Subscribe for updates</button>
         </div>
+
+        {/* Mobile: logo + hamburger */}
+        <div className="nav-mobile">
+          <span className="nav-logo">Travel DNA</span>
+          <button
+            className={`hamburger${menuOpen ? " hamburger-open" : ""}`}
+            onClick={() => setMenuOpen(o => !o)}
+            aria-label="Menu"
+          >
+            <span /><span /><span />
+          </button>
+        </div>
+
+        {/* Mobile drawer */}
+        {menuOpen && (
+          <div className="mobile-drawer" onClick={() => setMenuOpen(false)}>
+            <div className="mobile-drawer-inner" onClick={e => e.stopPropagation()}>
+              <p className="mobile-drawer-label">Navigation</p>
+              {[{ label: "Setup", value: "setup" }, { label: "Mood", value: "mood" }, { label: "Result", value: "result" }].map((item, i) => {
+                const order = ["setup", "mood", "result"];
+                const active = step === item.value;
+                const done = order.indexOf(step) > i || step === "loading";
+                const disabled = item.value === "result" && !itinerary;
+                return (
+                  <button
+                    type="button"
+                    className={`drawer-item${active ? " drawer-item-active" : ""}${done ? " drawer-item-done" : ""}${disabled ? " drawer-item-disabled" : ""}`}
+                    key={item.value}
+                    disabled={disabled}
+                    onClick={() => { if (!disabled) { goTo(item.value); setMenuOpen(false); } }}
+                  >
+                    <span className="drawer-dot" />
+                    {item.label}
+                    {done && !active && <span className="drawer-check">✓</span>}
+                  </button>
+                );
+              })}
+              <button className="btn-accent drawer-subscribe" onClick={() => { setShowSubscribe(true); setMenuOpen(false); }}>
+                Subscribe for updates
+              </button>
+            </div>
+          </div>
+        )}
       </nav>
 
       {step === "login" && (
@@ -732,6 +777,8 @@ button { cursor: pointer; }
 .navbar::before { display: none; }
 .nav-steps, .nav-actions, .error-actions { display: flex; align-items: center; gap: 6px; }
 
+/* Desktop nav — hidden on mobile */
+.nav-desktop { display: flex; align-items: center; gap: 6px; }
 .nav-steps { display: flex; align-items: center; gap: 6px; }
 .nav-steps i { display: none; }
 .nav-steps button {
@@ -753,6 +800,64 @@ button { cursor: pointer; }
 .nav-steps button.done { color: var(--ink-2); }
 .nav-steps button.done::before { background: var(--ink); }
 .nav-steps button:disabled { opacity: .3; cursor: not-allowed; }
+
+/* Mobile nav — hidden on desktop */
+.nav-mobile { display: none; width: 100%; align-items: center; justify-content: space-between; }
+.nav-logo { font-family: 'DM Serif Display', Georgia, serif; font-size: 18px; font-weight: 400; color: var(--ink); letter-spacing: -.02em; }
+
+/* Hamburger button */
+.hamburger {
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  gap: 5px; width: 40px; height: 40px;
+  background: transparent; border: 1px solid var(--line-strong); border-radius: 10px;
+  padding: 0; cursor: pointer; transition: background .15s;
+}
+.hamburger:hover { background: var(--surface-2); }
+.hamburger span {
+  display: block; width: 18px; height: 1.5px;
+  background: var(--ink); border-radius: 2px;
+  transition: transform .25s var(--ease), opacity .2s;
+  transform-origin: center;
+}
+.hamburger-open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.hamburger-open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.hamburger-open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+/* Mobile drawer */
+.mobile-drawer {
+  position: fixed; inset: 0; z-index: 998;
+  background: rgba(0,0,0,.32); backdrop-filter: blur(4px);
+  animation: drawerBgIn .2s ease both;
+}
+@keyframes drawerBgIn { from { opacity: 0; } to { opacity: 1; } }
+.mobile-drawer-inner {
+  position: absolute; top: 68px; right: 0; left: 0;
+  background: var(--bg); border-bottom: 1px solid var(--line-strong);
+  padding: 12px 20px 24px;
+  display: flex; flex-direction: column; gap: 4px;
+  animation: drawerSlideIn .25s var(--ease) both;
+}
+@keyframes drawerSlideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+.mobile-drawer-label { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); padding: 4px 0 10px; margin: 0; }
+.drawer-item {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; padding: 14px 16px;
+  background: transparent; border: none; border-radius: 12px;
+  font-size: 15px; font-weight: 600; color: var(--ink-2);
+  text-align: left; transition: background .15s, color .15s;
+}
+.drawer-item:hover:not(:disabled) { background: var(--surface-2); color: var(--ink); }
+.drawer-item-active { color: var(--accent) !important; background: rgba(51,153,137,.07) !important; }
+.drawer-item-done { color: var(--ink); }
+.drawer-item-disabled { opacity: .35; cursor: not-allowed; }
+.drawer-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  background: var(--surface-3); border: 1.5px solid var(--line-strong);
+}
+.drawer-item-active .drawer-dot { background: var(--accent); border-color: var(--accent); }
+.drawer-item-done .drawer-dot { background: var(--ink); border-color: var(--ink); }
+.drawer-check { margin-left: auto; font-size: 11px; font-weight: 800; color: var(--accent); }
+.drawer-subscribe { margin-top: 12px; width: 100%; justify-content: center; min-height: 48px !important; font-size: 14px !important; }
 
 /* ── BUTTONS ── */
 .btn-outline, .btn-accent { border-radius: 999px; font-weight: 700; font-size: 13px; transition: opacity .15s, background .15s; }
@@ -827,8 +932,10 @@ input { width: 100%; background: var(--panel-2); border: 1px solid var(--line-st
 input:focus { border-color: rgba(0,0,0,.26); background: var(--panel-3); }
 input::placeholder { color: var(--ink-3); }
 input[type="date"] { color-scheme: light; }
-.suggestions, .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
-.suggestion, .chip { padding: 8px 16px; background: transparent; border: 2px solid var(--gold); border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--gold); transition: background .15s, color .15s, border-color .15s; }
+/* Date input: never overflow on narrow screens */
+input[type="date"] { min-width: 0; width: 100%; appearance: none; -webkit-appearance: none; }
+.suggestions, .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; justify-content: flex-start; }
+.suggestion, .chip { padding: 8px 16px; background: transparent; border: 2px solid var(--gold); border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--gold); transition: background .15s, color .15s, border-color .15s; text-align: left; }
 .suggestion:hover, .chip:hover { background: var(--gold); color: #fff; border-color: var(--gold); }
 .suggestion.active, .chip.active { background: var(--gold); border-color: var(--gold); color: #fff; font-weight: 700; }
 .autocomplete-loading { display: inline-flex; align-items: center; padding: 8px 12px; color: var(--ink-3); font-size: 12px; font-weight: 700; }
@@ -1199,6 +1306,36 @@ input[type="date"] { color-scheme: light; }
 .subscribe-success { margin-top: 14px; border-radius: 12px; padding: 12px 14px; background: var(--surface-2); border: 1px solid var(--line-strong); color: var(--ink-2); font-size: 13px; font-weight: 700; }
 
 /* ── RESPONSIVE ── */
+
+/* Switch nav to mobile at 760px */
+@media(max-width: 760px) {
+  .nav-desktop { display: none !important; }
+  .nav-mobile { display: flex !important; }
+  .navbar { height: 68px !important; padding: 0 20px !important; }
+
+  .screen { padding: 32px 20px; }
+  .action-bar { width: 100% !important; }
+  .action-bar button, .action-bar a { width: 100% !important; justify-content: center !important; }
+  .build-cta-row { justify-content: stretch; }
+  .build-cta-row .btn-accent { width: 100%; justify-content: center; }
+
+  /* Result hero: full phone screen height */
+  .result-screen { padding: 0 0 60px !important; }
+  .res-hero {
+    min-height: calc(100svh - 68px);
+    border-radius: 0;
+    align-items: flex-end;
+  }
+  .res-glass-panel { padding: 24px 20px 32px; }
+  .res-glass-top { flex-direction: column; gap: 6px; }
+  .res-date-tag { align-self: flex-start; }
+  .res-dest { font-size: clamp(28px, 8vw, 52px); }
+
+  /* Make action bar appear below hero with padding */
+  .action-bar { padding: 0 20px; margin-top: 20px; }
+  .timeline { padding: 36px 20px 80px !important; }
+}
+
 @media(max-width: 980px) {
   .hero-inner { grid-template-columns: 1fr !important; gap: 42px; }
   .hero-cards { max-width: 620px; }
@@ -1206,31 +1343,18 @@ input[type="date"] { color-scheme: light; }
   .s-photo { margin-top: 18px; }
   .hero-cards.itinerary-showreel { max-width: 560px; height: auto !important; }
   .showreel-frame { height: 380px; }
-  .res-glass-top { flex-direction: column; gap: 8px; }
-  .res-date-tag { align-self: flex-start; }
 }
+
 @media(max-width: 900px) { .mood-grid.image-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; } }
-@media(max-width: 760px) {
-  .navbar { height: auto !important; min-height: 66px !important; padding: 10px 16px !important; }
-  .nav-steps { gap: 18px !important; overflow-x: auto !important; }
-  .action-bar { width: 100% !important; }
-  .action-bar button, .action-bar a { width: 100% !important; justify-content: center !important; }
-  .build-cta-row { justify-content: stretch; }
-  .build-cta-row .btn-accent { width: 100%; justify-content: center; }
-  .res-hero { min-height: 380px; }
-  .res-dest { font-size: clamp(28px, 7vw, 48px); }
-}
+
 @media(max-width: 620px) {
-  .screen { padding: 40px 20px; }
   .mood-grid.image-grid { grid-template-columns: 1fr !important; }
   .image-mood-tile { height: 200px !important; min-height: 200px !important; }
-  .result-screen { padding: 28px 18px 70px !important; }
-  .res-hero { min-height: 340px; border-radius: 18px; }
-  .res-glass-panel { padding: 22px 18px; }
-  .res-dest { font-size: clamp(26px, 8vw, 42px); }
   .s-photo { height: 200px; }
   h1 { font-size: 48px !important; }
   .showreel-frame { height: 320px; border-radius: 20px; }
+  /* Date input: shrink font so it never overflows on small phones */
+  input[type="date"] { font-size: 13px; padding: 0 16px; min-height: 54px; }
 }
 `;
 
