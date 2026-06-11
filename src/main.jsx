@@ -452,8 +452,8 @@ function App() {
               </div>
             </div>
 
-            {/* ll=1: mood signals — selected mood images stacked, pills animate in */}
-            <div className={`ls${loadingLine === 1 ? " ls-active" : loadingLine > 1 ? " ls-done" : ""}`}>
+            {/* ll=1–2: mood signals + dietary — same visual, stays put */}
+            <div className={`ls${loadingLine === 1 || loadingLine === 2 ? " ls-active" : loadingLine > 2 ? " ls-done" : ""}`}>
               <div className="ls-moods">
                 {selectedMoodObjects.slice(0, 3).map((mood, i) => (
                   <div className={`lcard lcard-${i}`} key={mood.id}>
@@ -463,26 +463,8 @@ function App() {
                   </div>
                 ))}
                 <div className="lspills">
-                  {selectedMoodObjects.map(m => m.title).filter(Boolean).map((label, i) => (
+                  {[...selectedMoodObjects.map(m => m.title), diet, planFor].filter(Boolean).map((label, i) => (
                     <span className={`lspill lspill-${i}`} key={label}>{label}</span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* ll=2: dietary prefs — same mood images, dietary/planFor pills */}
-            <div className={`ls${loadingLine === 2 ? " ls-active" : loadingLine > 2 ? " ls-done" : ""}`}>
-              <div className="ls-moods">
-                {selectedMoodObjects.slice(0, 3).map((mood, i) => (
-                  <div className={`lcard lcard-${i}`} key={"d"+mood.id}>
-                    <img src={mood.img} alt="" />
-                    <div className="lcard-ov" />
-                    <span className="lcard-lbl">{mood.title}</span>
-                  </div>
-                ))}
-                <div className="lspills">
-                  {[diet, planFor].filter(Boolean).map((label, i) => (
-                    <span className={`lspill lspill-${i}`} key={"d"+label}>{label}</span>
                   ))}
                 </div>
               </div>
@@ -804,16 +786,9 @@ p { font-size: 16px; line-height: 1.72; color: var(--ink-2); }
 .hero-pill span { font-size: 11px; font-weight: 700; color: var(--ink-3); letter-spacing: .1em; text-transform: uppercase; }
 .hero-left > p { max-width: 620px; font-size: clamp(17px,1.35vw,20px); line-height: 1.6; color: var(--ink-2); }
 .hero-cta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-.google-wrap {
-  min-height: 50px; display: inline-flex; align-items: center;
-  border-radius: 999px; overflow: hidden;
-  background: transparent; border: 1.5px solid var(--ink);
-  transition: background .15s;
-}
-.google-wrap:hover { background: var(--ink); }
-.google-wrap:hover iframe { filter: invert(1); }
-.google-wrap iframe { border-radius: 999px !important; display: block; }
-#googleSignIn, #googleSignIn > div { border-radius: 999px !important; }
+.google-wrap { min-height: 44px; display: inline-flex; align-items: center; border-radius: 999px; overflow: hidden; background: transparent; border: none; }
+.google-wrap iframe { border-radius: 999px !important; }
+#googleSignIn, #googleSignIn > div { border-radius: 999px !important; background: transparent !important; }
 .google-loading { color: var(--ink-3); font-size: 13px; font-weight: 700; padding: 0 16px; }
 .hero-cta > .btn-accent { background: transparent !important; color: var(--ink) !important; border: 1.5px solid var(--ink) !important; }
 .hero-cta > .btn-accent:hover { background: var(--ink) !important; color: #fff !important; opacity: 1 !important; }
@@ -844,9 +819,9 @@ input:focus { border-color: rgba(0,0,0,.26); background: var(--panel-3); }
 input::placeholder { color: var(--ink-3); }
 input[type="date"] { color-scheme: light; }
 .suggestions, .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
-.suggestion, .chip { padding: 8px 16px; background: var(--panel-2); border: 1.5px solid var(--ink); border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--ink); transition: background .15s, color .15s, border-color .15s; }
-.suggestion:hover, .chip:hover { background: var(--ink); color: #fff; }
-.suggestion.active, .chip.active { background: var(--ink); border-color: var(--ink); color: #fff; font-weight: 700; }
+.suggestion, .chip { padding: 8px 16px; background: transparent; border: 2px solid var(--gold); border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--gold); transition: background .15s, color .15s, border-color .15s; }
+.suggestion:hover, .chip:hover { background: #fff; color: var(--gold); border-color: var(--gold); }
+.suggestion.active, .chip.active { background: #fff; border-color: var(--gold); color: var(--gold); font-weight: 700; }
 .autocomplete-loading { display: inline-flex; align-items: center; padding: 8px 12px; color: var(--ink-3); font-size: 12px; font-weight: 700; }
 .field-block { display: grid; gap: 8px; }
 .pi-card { padding: 24px; border-radius: 24px; background: var(--panel); border: 1px solid var(--line-strong); }
