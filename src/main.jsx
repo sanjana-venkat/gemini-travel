@@ -799,80 +799,80 @@ function App() {
           </section>
 
           <section className="action-bar">
-            <button className="btn-outline" onClick={() => goTo("setup")}>Edit setup</button>
-            <button className="btn-outline" onClick={generatePlan}>Regenerate</button>
-            {tripMapsUrl && (
-              <a className="btn-accent maps-trip-btn" href={tripMapsUrl} target="_blank" rel="noreferrer">Open trip in Google Maps</a>
-            )}
-            <button
-              className={`btn-outline share-btn${shareCopied ? " share-btn-copied" : ""}${shareLoading ? " share-btn-loading" : ""}`}
-              disabled={shareLoading}
-              onClick={async () => {
-                if (shareLoading) return;
-                setShareLoading(true);
-                try {
-                  const res = await fetch("/api/save-itinerary", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ itinerary, destination, date, selectedMoods: selectedMoodObjects, diet, planFor }),
-                  });
-                  const { id, error } = await res.json();
-                  if (!id) throw new Error(error || "No ID returned");
-                  const shareUrl = `${window.location.origin}${window.location.pathname}?i=${id}`;
-                  if (navigator.share) {
-                    await navigator.share({
-                      title: `Travel DNA — ${itinerary?.destination || destination}`,
-                      text: itinerary?.summary || "Check out this itinerary.",
-                      url: shareUrl,
-                    });
-                  } else {
-                    await navigator.clipboard.writeText(shareUrl);
-                    setShareCopied(true);
-                    setTimeout(() => setShareCopied(false), 2500);
-                  }
-                } catch (e) {
-                  console.error("Share failed:", e);
-                } finally {
-                  setShareLoading(false);
-                }
-              }}
-              title="Share itinerary"
-            >
-              {shareLoading ? (
-                <svg className="cal-spin" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5" strokeDasharray="28" strokeDashoffset="10" strokeLinecap="round"/></svg>
-              ) : shareCopied ? (
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              ) : (
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="12" cy="3" r="1.75" stroke="currentColor" strokeWidth="1.5"/><circle cx="12" cy="13" r="1.75" stroke="currentColor" strokeWidth="1.5"/><circle cx="4" cy="8" r="1.75" stroke="currentColor" strokeWidth="1.5"/><line x1="10.28" y1="4.07" x2="5.72" y2="6.93" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><line x1="5.72" y1="9.07" x2="10.28" y2="11.93" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
-              )}
-              <span>{shareLoading ? "Saving…" : shareCopied ? "Copied!" : "Share"}</span>
-            </button>
+            {/* Row 1: icon circle buttons */}
+            <div className="action-icons-row">
+              <button className="icon-btn" onClick={() => goTo("setup")} title="Edit setup">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M12.5 2.5l3 3L5 16H2v-3L12.5 2.5z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                <span>Edit</span>
+              </button>
 
-            <button
-              className={`btn-outline cal-btn cal-btn-${calendarState}`}
-              onClick={addToCalendar}
-              disabled={calendarState === "loading"}
-              title={user ? "Add to Google Calendar" : "Download .ics"}
-            >
-              {calendarState === "loading" && (
-                <svg className="cal-spin" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5" strokeDasharray="28" strokeDashoffset="10" strokeLinecap="round"/></svg>
-              )}
-              {calendarState === "done" && (
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              )}
-              {calendarState === "error" && (
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 5v4M8 11v.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.5"/></svg>
-              )}
-              {calendarState === "idle" && (
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="11" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M2 7h12" stroke="currentColor" strokeWidth="1.5"/><path d="M5 1v3M11 1v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
-              )}
-              <span>
-                {calendarState === "loading" ? "Adding…" :
-                 calendarState === "done"    ? (user ? "Added!" : "Downloaded!") :
-                 calendarState === "error"   ? "Try again" :
-                 user ? "Add to Calendar" : "Add to Calendar"}
-              </span>
-            </button>
+              <button className="icon-btn" onClick={generatePlan} title="Regenerate">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 9a6 6 0 0110.5-4M15 9a6 6 0 01-10.5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><path d="M13 5h2.5V2.5M5 13H2.5V15.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                <span>Redo</span>
+              </button>
+
+              <button
+                className={`icon-btn${shareCopied ? " icon-btn-active" : ""}${shareLoading ? " icon-btn-loading" : ""}`}
+                disabled={shareLoading}
+                onClick={async () => {
+                  if (shareLoading) return;
+                  setShareLoading(true);
+                  try {
+                    const res = await fetch("/api/save-itinerary", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ itinerary, destination, date, selectedMoods: selectedMoodObjects, diet, planFor }),
+                    });
+                    const { id, error } = await res.json();
+                    if (!id) throw new Error(error || "No ID returned");
+                    const shareUrl = `${window.location.origin}${window.location.pathname}?i=${id}`;
+                    if (navigator.share) {
+                      await navigator.share({ title: `Travel DNA — ${itinerary?.destination || destination}`, text: itinerary?.summary || "Check out this itinerary.", url: shareUrl });
+                    } else {
+                      await navigator.clipboard.writeText(shareUrl);
+                      setShareCopied(true);
+                      setTimeout(() => setShareCopied(false), 2500);
+                    }
+                  } catch (e) { console.error("Share failed:", e); }
+                  finally { setShareLoading(false); }
+                }}
+                title="Share itinerary"
+              >
+                {shareLoading ? (
+                  <svg className="cal-spin" width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="currentColor" strokeWidth="1.5" strokeDasharray="32" strokeDashoffset="12" strokeLinecap="round"/></svg>
+                ) : shareCopied ? (
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 9l4 4L14 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="13" cy="3.5" r="2" stroke="currentColor" strokeWidth="1.5"/><circle cx="13" cy="14.5" r="2" stroke="currentColor" strokeWidth="1.5"/><circle cx="5" cy="9" r="2" stroke="currentColor" strokeWidth="1.5"/><line x1="11.1" y1="4.6" x2="6.9" y2="7.9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><line x1="6.9" y1="10.1" x2="11.1" y2="13.4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                )}
+                <span>{shareLoading ? "Saving…" : shareCopied ? "Copied!" : "Share"}</span>
+              </button>
+
+              <button
+                className={`icon-btn cal-icon-btn-${calendarState}`}
+                onClick={addToCalendar}
+                disabled={calendarState === "loading"}
+                title={user ? "Add to Google Calendar" : "Download .ics"}
+              >
+                {calendarState === "loading" && <svg className="cal-spin" width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="currentColor" strokeWidth="1.5" strokeDasharray="32" strokeDashoffset="12" strokeLinecap="round"/></svg>}
+                {calendarState === "done"    && <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 9l4 4L14 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                {calendarState === "error"   && <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 6v4M9 12v.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><circle cx="9" cy="9" r="7" stroke="currentColor" strokeWidth="1.5"/></svg>}
+                {calendarState === "idle"    && <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="3.5" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M2 8h14" stroke="currentColor" strokeWidth="1.5"/><path d="M6 1.5v3M12 1.5v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>}
+                <span>
+                  {calendarState === "loading" ? "Adding…" :
+                   calendarState === "done"    ? (user ? "Added!" : "Saved!") :
+                   calendarState === "error"   ? "Failed" : "Calendar"}
+                </span>
+              </button>
+            </div>
+
+            {/* Row 2: primary CTA */}
+            {tripMapsUrl && (
+              <a className="btn-accent maps-trip-btn action-primary-cta" href={tripMapsUrl} target="_blank" rel="noreferrer">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.515 1.5 3.5 3.515 3.5 6c0 3.375 4.5 8.5 4.5 8.5S12.5 9.375 12.5 6c0-2.485-2.015-4.5-4.5-4.5z" stroke="currentColor" strokeWidth="1.5"/><circle cx="8" cy="6" r="1.5" stroke="currentColor" strokeWidth="1.5"/></svg>
+                Open trip in Google Maps
+              </a>
+            )}
           </section>
 
           <section className="timeline">
@@ -1511,12 +1511,43 @@ input[type="date"] { min-width: 0; width: 100%; appearance: none; -webkit-appear
   to   { opacity: 1; }
 }
 
-/* ── Action bar ── */
+/* ── ACTION BAR ── */
 .action-bar {
-  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  display: flex; flex-direction: column; gap: 12px;
   margin: 24px 0 52px;
-  background: transparent !important; border: 0 !important;
 }
+.action-icons-row {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.icon-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; width: 72px; min-height: 72px;
+  background: var(--surface); border: 1.5px solid var(--line-strong);
+  border-radius: 20px; cursor: pointer; color: var(--ink-2);
+  font-size: 11px; font-weight: 700; letter-spacing: .02em;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.icon-btn:hover { background: var(--surface-2); border-color: var(--ink); color: var(--ink); }
+.icon-btn:disabled { opacity: .5; cursor: not-allowed; }
+.icon-btn svg { flex-shrink: 0; }
+.icon-btn-active { border-color: var(--accent) !important; color: var(--accent) !important; background: rgba(51,153,137,.07) !important; }
+.icon-btn-loading { opacity: .7; cursor: wait; }
+.cal-icon-btn-done  { border-color: var(--accent) !important; color: var(--accent) !important; background: rgba(51,153,137,.07) !important; }
+.cal-icon-btn-error { border-color: #c0392b !important; color: #c0392b !important; }
+
+.action-primary-cta {
+  width: 100%; justify-content: center; gap: 8px;
+}
+
+/* Share/cal old classes kept for spinner reuse */
+.share-btn-copied { border-color: var(--accent) !important; color: var(--accent) !important; }
+.share-btn-loading { opacity: .7; cursor: wait; }
+.cal-btn { gap: 7px; }
+.cal-btn-done  { border-color: var(--accent) !important; color: var(--accent) !important; }
+.cal-btn-error { border-color: #c0392b !important; color: #c0392b !important; }
+.cal-btn-loading { opacity: .7; cursor: wait; }
+@keyframes calSpin { to { transform: rotate(360deg); } }
+.cal-spin { animation: calSpin .8s linear infinite; }
 
 /* ── TIMELINE ── */
 .timeline { max-width: 100% !important; margin: 0 auto; padding: 48px 0 90px !important; }
@@ -1580,9 +1611,11 @@ input[type="date"] { min-width: 0; width: 100%; appearance: none; -webkit-appear
   .navbar { height: 68px !important; padding: 0 20px !important; }
 
   .screen { padding: 32px 20px; }
-  /* Action bar: give buttons side breathing room, not full bleed */
-  .action-bar { width: 100% !important; padding: 0 20px !important; margin: 20px 0 0 !important; gap: 10px; box-sizing: border-box; }
-  .action-bar button, .action-bar a { width: 100% !important; justify-content: center !important; min-height: 52px !important; }
+  /* Action bar: icon row stays compact, only primary CTA goes full width */
+  .action-bar { width: 100% !important; padding: 0 20px !important; margin: 20px 0 0 !important; gap: 12px; box-sizing: border-box; }
+  .action-icons-row { gap: 10px; }
+  .icon-btn { flex: 1; min-width: 64px; max-width: 90px; }
+  .action-primary-cta { width: 100% !important; justify-content: center !important; min-height: 52px !important; }
   .build-cta-row { justify-content: stretch; }
   .build-cta-row .btn-accent { width: 100%; justify-content: center; }
 
