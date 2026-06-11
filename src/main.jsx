@@ -86,23 +86,35 @@ const moodVibes = [
 function PlacesCarousel({ moods, places }) {
   const [idx, setIdx] = React.useState(0);
   React.useEffect(() => {
-    const t = setInterval(() => setIdx(i => (i + 1) % moods.length), 1800);
+    const t = setInterval(() => setIdx(i => (i + 1) % moods.length), 2000);
     return () => clearInterval(t);
   }, [moods.length]);
-  const mood = moods[idx];
-  const place = places[idx];
+  // Clean up place name — strip long address suffixes, keep city-level name
+  const cleanName = (raw, fallback) => {
+    if (!raw) return fallback;
+    const parts = raw.split(",");
+    return parts[0].trim();
+  };
   return (
     <div className="places-carousel">
-      {moods.map((m, i) => (
-        <div key={m.id + i} className={`pc-slide${i === idx ? " pc-active" : i === (idx - 1 + moods.length) % moods.length ? " pc-prev" : ""}`}>
-          <img src={m.img} alt="" />
-          <div className="pc-ov"/>
-          <div className="pc-meta">
-            <span className="pc-name">{place?.name || m.title}</span>
-            <span className="pc-rating">★ {(4.1 + i * 0.15).toFixed(1)}</span>
+      {moods.map((m, i) => {
+        const place = places[i];
+        const rating = (4.1 + i * 0.15).toFixed(1);
+        const name = cleanName(place?.name, m.title);
+        return (
+          <div key={m.id + i} className={`pc-slide${i === idx ? " pc-active" : i === (idx - 1 + moods.length) % moods.length ? " pc-prev" : ""}`}>
+            <img src={m.img} alt="" />
+            <div className="pc-ov"/>
+            <div className="pc-meta">
+              <span className="pc-name">{name}</span>
+              <div className="pc-chips">
+                <span className="pc-rating-chip">★ {rating}</span>
+                {place && <span className="pc-type-chip">{m.title}</span>}
+              </div>
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
       <div className="pc-dots">
         {moods.map((_, i) => <span key={i} className={`pc-dot${i === idx ? " pc-dot-active" : ""}`}/>)}
       </div>
@@ -440,36 +452,36 @@ function App() {
               </div>
             </div>
 
-            {/* ll=1: mood cards + pills */}
+            {/* ll=1: mood signals — selected mood images stacked, pills animate in */}
             <div className={`ls${loadingLine === 1 ? " ls-active" : loadingLine > 1 ? " ls-done" : ""}`}>
               <div className="ls-moods">
-                {selectedMoodObjects.concat(moodVibes).slice(0, 3).map((mood, i) => (
-                  <div className={`lcard lcard-${i}`} key={mood.id + i}>
+                {selectedMoodObjects.slice(0, 3).map((mood, i) => (
+                  <div className={`lcard lcard-${i}`} key={mood.id}>
                     <img src={mood.img} alt="" />
                     <div className="lcard-ov" />
                     <span className="lcard-lbl">{mood.title}</span>
                   </div>
                 ))}
                 <div className="lspills">
-                  {[...selectedMoodObjects.map(m => m.title), diet, planFor].filter(Boolean).map((label, i) => (
+                  {selectedMoodObjects.map(m => m.title).filter(Boolean).map((label, i) => (
                     <span className={`lspill lspill-${i}`} key={label}>{label}</span>
                   ))}
                 </div>
               </div>
             </div>
 
-            {/* ll=2: dietary — same visual as moods */}
+            {/* ll=2: dietary prefs — same mood images, dietary/planFor pills */}
             <div className={`ls${loadingLine === 2 ? " ls-active" : loadingLine > 2 ? " ls-done" : ""}`}>
               <div className="ls-moods">
-                {selectedMoodObjects.concat(moodVibes).slice(0, 3).map((mood, i) => (
-                  <div className={`lcard lcard-${i}`} key={"d"+mood.id+i}>
+                {selectedMoodObjects.slice(0, 3).map((mood, i) => (
+                  <div className={`lcard lcard-${i}`} key={"d"+mood.id}>
                     <img src={mood.img} alt="" />
                     <div className="lcard-ov" />
                     <span className="lcard-lbl">{mood.title}</span>
                   </div>
                 ))}
                 <div className="lspills">
-                  {[diet, planFor, ...selectedMoodObjects.map(m => m.title)].filter(Boolean).map((label, i) => (
+                  {[diet, planFor].filter(Boolean).map((label, i) => (
                     <span className={`lspill lspill-${i}`} key={"d"+label}>{label}</span>
                   ))}
                 </div>
@@ -718,7 +730,7 @@ button { cursor: pointer; }
 /* ── NAVBAR ── */
 .navbar {
   position: sticky; top: 0; z-index: 999;
-  width: 100%; height: 60px;
+  width: 100%; height: 68px;
   padding: 0 clamp(24px, 4vw, 56px);
   display: flex; align-items: center; justify-content: space-between;
   background: var(--bg);
@@ -756,7 +768,7 @@ button { cursor: pointer; }
 .btn-outline {
   display: inline-flex; align-items: center; justify-content: center; gap: 7px;
   min-height: 50px; padding: 0 24px;
-  background: var(--panel-2); border: 1.5px solid var(--ink); color: var(--ink); text-decoration: none;
+  background: transparent; border: 1.5px solid var(--ink); color: var(--ink); text-decoration: none;
 }
 .btn-outline:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
 .btn-accent {
@@ -792,9 +804,16 @@ p { font-size: 16px; line-height: 1.72; color: var(--ink-2); }
 .hero-pill span { font-size: 11px; font-weight: 700; color: var(--ink-3); letter-spacing: .1em; text-transform: uppercase; }
 .hero-left > p { max-width: 620px; font-size: clamp(17px,1.35vw,20px); line-height: 1.6; color: var(--ink-2); }
 .hero-cta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-.google-wrap { min-height: 44px; display: inline-flex; align-items: center; border-radius: 999px; overflow: hidden; background: transparent; border: none; }
-.google-wrap iframe { border-radius: 999px !important; }
-#googleSignIn, #googleSignIn > div { border-radius: 999px !important; background: transparent !important; }
+.google-wrap {
+  min-height: 50px; display: inline-flex; align-items: center;
+  border-radius: 999px; overflow: hidden;
+  background: transparent; border: 1.5px solid var(--ink);
+  transition: background .15s;
+}
+.google-wrap:hover { background: var(--ink); }
+.google-wrap:hover iframe { filter: invert(1); }
+.google-wrap iframe { border-radius: 999px !important; display: block; }
+#googleSignIn, #googleSignIn > div { border-radius: 999px !important; }
 .google-loading { color: var(--ink-3); font-size: 13px; font-weight: 700; padding: 0 16px; }
 .hero-cta > .btn-accent { background: transparent !important; color: var(--ink) !important; border: 1.5px solid var(--ink) !important; }
 .hero-cta > .btn-accent:hover { background: var(--ink) !important; color: #fff !important; opacity: 1 !important; }
@@ -1032,10 +1051,20 @@ input[type="date"] { color-scheme: light; }
 .pc-ov { position:absolute; inset:0; background:linear-gradient(to top,rgba(0,0,0,.7),transparent 50%); }
 .pc-meta {
   position: absolute; bottom: 14px; left: 16px; right: 16px;
-  display: flex; align-items: flex-end; justify-content: space-between;
+  display: flex; flex-direction: column; gap: 8px;
 }
-.pc-name { font-size: 15px; font-weight: 800; color: #fff; letter-spacing: -.02em; max-width: 75%; }
-.pc-rating { font-size: 12px; font-weight: 800; color: var(--accent); white-space: nowrap; }
+.pc-name { font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -.02em; line-height: 1.1; }
+.pc-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.pc-rating-chip {
+  padding: 4px 10px; border-radius: 999px;
+  background: var(--accent); color: var(--ink);
+  font-size: 11px; font-weight: 800; white-space: nowrap;
+}
+.pc-type-chip {
+  padding: 4px 10px; border-radius: 999px;
+  background: rgba(255,255,255,.2); color: #fff;
+  font-size: 11px; font-weight: 600; white-space: nowrap;
+}
 .pc-dots {
   position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
   display: flex; gap: 5px;
