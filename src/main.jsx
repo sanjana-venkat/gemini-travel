@@ -703,10 +703,10 @@ html, body, #root {
   --ink: #080808;
   --ink-2: #3A3A38;
   --ink-3: #8A897F;
-  --accent: #7A1F2B;
-  --gold: #7A1F2B;
-  --gold-bright: #7A1F2B;
-  --gold-line: rgba(122,31,43,.35);
+  --accent: #339989;
+  --gold: #339989;
+  --gold-bright: #339989;
+  --gold-line: rgba(51,153,137,.35);
   --ease: cubic-bezier(.2,.8,.2,1);
 }
 
@@ -1106,23 +1106,23 @@ input[type="date"] { color-scheme: light; }
 
 /* ── STAGE 6: Wireframe ── */
 .wire-frame {
-  width: min(400px,100%); border-radius: 14px;
+  width: min(400px,100%); border-radius: 12px;
   border: 1px solid var(--line-strong); background: var(--surface);
-  padding: 11px; display: flex; flex-direction: column; gap: 7px;
+  padding: 9px; display: flex; flex-direction: column; gap: 5px;
 }
-.wire-hero { height: 48px; border-radius: 8px; }
+.wire-hero { height: 32px; border-radius: 6px; }
 .wire-meta { display: flex; flex-direction: column; gap: 5px; }
 .wire-tag  { height: 9px;  width: 55px;  border-radius: 999px; }
 .wire-title{ height: 16px; width: 68%;   border-radius: 6px; }
 .wire-sub  { height: 10px; width: 42%;   border-radius: 6px; }
-.wire-stops{ display: flex; flex-direction: column; gap: 7px; }
-.wire-stop { display: flex; align-items: center; gap: 9px; }
-.wire-dot  { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
-.wire-lines{ flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.wire-line { height: 7px; border-radius: 4px; }
+.wire-stops{ display: flex; flex-direction: column; gap: 5px; }
+.wire-stop { display: flex; align-items: center; gap: 7px; }
+.wire-dot  { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+.wire-lines{ flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.wire-line { height: 6px; border-radius: 3px; }
 .wl-a { width: 78%; }
 .wl-b { width: 52%; }
-.wire-img  { width: 44px; height: 34px; border-radius: 7px; flex-shrink: 0; }
+.wire-img  { width: 36px; height: 28px; border-radius: 6px; flex-shrink: 0; }
 .wire-hero, .wire-tag, .wire-title, .wire-sub, .wire-line, .wire-img {
   background-image: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 50%, var(--surface-2) 75%);
   background-size: 200% 100%;
@@ -1132,7 +1132,7 @@ input[type="date"] { color-scheme: light; }
 .wire-gemini-badge {
   display: flex; align-items: center; gap: 8px;
   padding: 8px 12px; border-radius: 10px;
-  background: rgba(122,31,43,.08); border: 1px solid rgba(122,31,43,.2);
+  background: rgba(51,153,137,.08); border: 1px solid rgba(51,153,137,.2);
   font-size: 12px; font-weight: 600; color: var(--accent);
 }
 .gorb-core-sm { font-size: 12px; animation: coreGlow 2s ease-in-out infinite; }
@@ -1233,10 +1233,10 @@ input[type="date"] { color-scheme: light; }
 .place-meta { display: flex; flex-wrap: wrap; gap: 7px; margin: 8px 0 14px; }
 .place-meta span, .place-meta a { display: inline-flex; align-items: center; min-height: 28px; padding: 5px 10px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--line-strong); color: var(--ink-2); font-size: 12px; font-weight: 600; text-decoration: none; }
 .place-meta a { color: var(--ink); font-weight: 700; }
-.place-meta .rating-pill { color: var(--accent); border-color: rgba(122,31,43,.3); background: rgba(122,31,43,.1); font-weight: 800; }
+.place-meta .rating-pill { color: var(--accent); border-color: rgba(51,153,137,.3); background: rgba(51,153,137,.1); font-weight: 800; }
 .place-meta .demo-pill { color: var(--ink-3); }
 
-.fallback-banner { margin-top: 18px; width: min(760px,100%); border: 1px solid rgba(122,31,43,.25); background: rgba(122,31,43,.07); border-radius: 16px; padding: 16px 18px; }
+.fallback-banner { margin-top: 18px; width: min(760px,100%); border: 1px solid rgba(51,153,137,.25); background: rgba(51,153,137,.07); border-radius: 16px; padding: 16px 18px; }
 .fallback-banner span { display: inline-flex; color: var(--accent); font-size: 10px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; }
 .fallback-banner p { margin: 0 0 12px; font-size: 13px; line-height: 1.6; color: var(--ink-2); }
 .fallback-banner button { border: none; border-radius: 8px; padding: 8px 14px; background: var(--ink); color: var(--accent); font-size: 12px; font-weight: 800; }
