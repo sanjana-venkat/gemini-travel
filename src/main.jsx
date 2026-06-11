@@ -767,7 +767,7 @@ button { cursor: pointer; }
 .btn-accent:hover { opacity: .88; }
 .btn-accent:active { transform: scale(.98); }
 .btn-accent, .btn-outline { text-decoration: none !important; }
-.nav-subscribe { min-height: 42px !important; padding: 0 16px !important; font-size: 12px; background: var(--ink) !important; border: 1.5px solid var(--ink) !important; color: #fff !important; font-weight: 700 !important; }
+.nav-subscribe { min-height: 44px !important; padding: 0 24px !important; font-size: 13px; background: var(--ink) !important; border: 1.5px solid var(--ink) !important; color: #fff !important; font-weight: 700 !important; }
 .nav-subscribe:hover { background: #222 !important; border-color: #222 !important; opacity: 1 !important; }
 
 /* ── SCREENS ── */
